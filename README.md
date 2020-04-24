@@ -2,6 +2,8 @@
 
 > Framework-agnostic migrations
 
+[ ![CircleCI](https://img.shields.io/circleci/build/github/Sleavely/exodus-migrations?token=22848581bf01ecc38384dd7f568a8404e84c21d2) ](https://circleci.com/gh/Sleavely/exodus-migrations)
+
 [Github](https://github.com/Sleavely/exodus-migrations) | [NPM](https://www.npmjs.com/package/exodus)
 
 ## Install
