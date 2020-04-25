@@ -19,7 +19,7 @@ exports.writeFile = promisify(fs.writeFile)
  */
 exports.findUpwardsFile = async (filename, directory = process.cwd()) => {
   const parsedPath = path.parse(path.join(directory, filename))
-  const targetFile = `${parsedPath.dir}${parsedPath.base}`
+  const targetFile = path.join(parsedPath.dir, parsedPath.base)
   let fileExists = false
   try {
     await exports.access(targetFile, 'utf8')
