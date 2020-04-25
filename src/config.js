@@ -42,16 +42,18 @@ exports.getConfig = async () => {
 }
 
 const defaultConfig = {
-  // // REQUIRED. The folder to store migration scripts in.
-  // migrationsDirectory: './migrations',
+  // The folder to store migration scripts in.
+  migrationsDirectory: './migrations',
 
-  // // REQUIRED. Persists the current migration state. The `state`
-  // // argument will always be a variable-length JSON-serialized string.
-  // // Store it to redis, disk, database, ... whatever suits you.
+  // Persists the current migration state. The `state`
+  // argument will always be a variable-length JSON-serialized string.
+  // Store it to redis, disk, database, ... whatever suits you.
+  // OPTIONAL: If undefined, Exodus falls back to exodus.state.json
   // storeState: async (state, context) => {},
 
-  // // REQUIRED. This method is responsible for fetching the
-  // // current migration state, persisted by `storeState`.
+  // This method is responsible for fetching the
+  // current migration state, persisted by `storeState`.
+  // OPTIONAL: If undefined, Exodus falls back to exodus.state.json
   // fetchState: async (context) => {},
 
   // Invoked at the beginning of a run, this method
