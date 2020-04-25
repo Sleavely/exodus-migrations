@@ -34,7 +34,12 @@ exports.getConfig = async () => {
     if (!_config.fetchState) {
       _config.fetchState = async () => {
         const statePath = path.join(configDir, 'exodus.state.json')
-        return fs.readFile(statePath, 'utf8')
+        try {
+          return await fs.readFile(statePath, 'utf8')
+        } catch (err) {
+          if (err.code !== 'ENOENT') throw err
+          return '{}'
+        }
       }
     }
   }
@@ -46,7 +51,7 @@ const defaultConfig = {
   migrationsDirectory: './migrations',
 
   // Persists the current migration state. The `state`
-  // argument will always be a variable-length JSON-serialized string.
+  // argument will always be a JSON-serialized object.
   // Store it to redis, disk, database, ... whatever suits you.
   // OPTIONAL: If undefined, Exodus falls back to exodus.state.json
   // storeState: async (state, context) => {},
