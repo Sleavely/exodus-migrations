@@ -66,7 +66,12 @@ const action = cli.input[0]
       spinners['afterAll'].succeed(`Finished running ${migrationJobs.length} migration${migrationJobs.length === 1 ? '' : 's'}.`)
     }
     // Now run 'em
-    await main.run()
+    try {
+      await main.run()
+    } catch (err) {
+      console.error(err)
+      process.exit(1)
+    }
   } else {
     cli.showHelp(1)
   }
