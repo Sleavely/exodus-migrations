@@ -29,7 +29,8 @@
     "jest-extended": "^0.11.5"
   },
   "dependencies": {
-    "meow": "^6.1.0"
+    "meow": "^6.1.0",
+    "slugify": "^1.4.0"
   },
   "jest": {
     "testEnvironment": "node",
