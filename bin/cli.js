@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const meow = require('meow')
+const ora = require('ora')
 const self = require('../package.json')
 
 const main = require('..')
@@ -42,20 +43,30 @@ const action = cli.input[0]
   } else if (action === 'run') {
     // Wrap *Each() to print each migration.
     const config = await main.getConfig()
+    const spinners = {}
+
     const originalBeforeEach = config.beforeEach
     config.beforeEach = async (migrationJob, ...additionalArgs) => {
-      console.log(`Running "${migrationJob.filename}"`)
+      spinners[migrationJob.filename] = ora()
+      spinners[migrationJob.filename].start(`Running "${migrationJob.filename}"`)
       await originalBeforeEach(migrationJob, ...additionalArgs)
     }
+
     const originalAfterEach = config.afterEach
     config.afterEach = async (migrationJob, ...additionalArgs) => {
       await originalAfterEach(migrationJob, ...additionalArgs)
-      console.log(`Finished "${migrationJob.filename}"`)
+      spinners[migrationJob.filename].succeed(`Ran "${migrationJob.filename}"`)
+    }
+
+    // Override afterAll() so we can sum up output nicely.
+    const originalAfterAll = config.afterAll
+    config.afterAll = async (migrationJobs) => {
+      await originalAfterAll(migrationJobs)
+      spinners['afterAll'] = ora()
+      spinners['afterAll'].succeed(`Finished running ${migrationJobs.length} migration${migrationJobs.length === 1 ? '' : 's'}.`)
     }
     // Now run 'em
-    const newState = await main.run()
-    console.log(`Finished running migrations.`)
-    console.log(newState)
+    await main.run()
   } else {
     cli.showHelp(1)
   }
