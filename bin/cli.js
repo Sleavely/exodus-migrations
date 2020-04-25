@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
 const meow = require('meow')
-
 const self = require('../package.json')
+
+const main = require('..')
+const path = require('path')
 
 const cli = meow(`
 Usage
@@ -27,8 +29,20 @@ ${self.homepage}
 })
 
 const action = cli.input[0]
-if (action) {
-  console.log('WIP!')
-} else {
-  cli.showHelp(1)
-}
+
+;(async () => {
+  if (action) {
+    switch (action) {
+      case 'init':
+        const targetFile = `${Object.keys(self.bin)[0]}.config.js`
+        const targetPath = path.join(process.cwd(), targetFile)
+        await main.init(targetPath)
+        console.log(`Created configuration in "${targetPath}"`)
+        break
+      default:
+        console.log('WIP!')
+    }
+  } else {
+    cli.showHelp(1)
+  }
+})()
