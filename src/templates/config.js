@@ -3,7 +3,7 @@ module.exports = exports = {
   // migrationsDirectory: './migrations',
 
   // Persists the current migration state. The `state`
-  // argument will always be a variable-length JSON-serialized string.
+  // argument will always be a JSON-serialized object.
   // Store it to redis, disk, database, ... whatever suits you.
   // OPTIONAL: If undefined, Exodus falls back to exodus.state.json
   // storeState: async (state, context) => {},
