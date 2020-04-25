@@ -1,5 +1,5 @@
 exodus.config.js
-exodus.state.js
+exodus.state.json
 migrations/
 
 # Created by https://www.gitignore.io/api/node,linux,macos,windows
