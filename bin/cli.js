@@ -57,19 +57,23 @@ const action = cli.input[0]
       await originalAfterEach(migrationJob, ...additionalArgs)
       spinners[migrationJob.filename].succeed(`Ran "${migrationJob.filename}"`)
     }
-
-    // Override afterAll() so we can sum up output nicely.
-    const originalAfterAll = config.afterAll
-    config.afterAll = async (migrationJobs) => {
-      await originalAfterAll(migrationJobs)
-      spinners['afterAll'] = ora()
-      spinners['afterAll'].succeed(`Finished running ${migrationJobs.length} migration${migrationJobs.length === 1 ? '' : 's'}.`)
-    }
     // Now run 'em
     try {
-      await main.run()
+      const { ranMigrations } = await main.run()
+      if (ranMigrations.length) {
+        ora().succeed(`Finished running ${ranMigrations.length} migration${ranMigrations.length === 1 ? '' : 's'}.`)
+      } else {
+        ora().info('No migrations to run.')
+      }
     } catch (err) {
+      for (let filename in spinners) {
+        // find runnign ones and fail them.
+        if (spinners[filename].isSpinning) spinners[filename].fail()
+      }
       console.error(err)
+      ora('').warn()
+      ora('Migrations state was not saved - any jobs that succeeded will be run again next time.').warn()
+      ora('').warn()
       process.exit(1)
     }
   } else {
