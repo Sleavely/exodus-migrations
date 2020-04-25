@@ -15,8 +15,6 @@ Possible actions
   create <name>     Creates a new file in your migrations dir
   run               Runs all remaining migrations
   rollback <file>   Rolls back all migrations to and including <file>
-  up <file>         Runs a specific migration file
-  down <file>       Rolls back a specific file
 
 Options
   --help
