@@ -1,6 +1,6 @@
 const { getConfig, getSampleConfig } = require('./config')
 const { getSampleMigration } = require('./migrations')
-const { listDirectoryFiles, writeFile } = require('./utils/fs')
+const { listDirectoryFiles, mkdir, writeFile } = require('./utils/fs')
 const path = require('path')
 const slugify = require('slugify')
 
@@ -16,13 +16,17 @@ exports.init = async (targetPath) => {
  * Create a migration file in the migrations directory
  */
 exports.create = async (name) => {
-  const slug = slugify(name)
   const config = await getConfig()
+
+  // Make sure migrationsDirectory exists, otherwise create it.
   const targetDir = config.migrationsDirectory
-  const targetName = `${Date.now()}-${slug}.js`
-  const statePath = path.join(targetDir, targetName)
+  await mkdir(targetDir, { recursive: true })
+
+  const targetName = `${Date.now()}-${slugify(name)}.js`
+  const targetPath = path.join(targetDir, targetName)
   const template = await getSampleMigration()
-  await writeFile(statePath, template, 'utf8')
+  await writeFile(targetPath, template, 'utf8')
+  return targetPath
 }
 
 /**

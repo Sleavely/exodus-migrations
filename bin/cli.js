@@ -29,18 +29,20 @@ ${self.homepage}
 const action = cli.input[0]
 
 ;(async () => {
-  if (action) {
-    switch (action) {
-      case 'init':
-        const targetFile = `${Object.keys(self.bin)[0]}.config.js`
-        const targetPath = path.join(process.cwd(), targetFile)
-        await main.init(targetPath)
-        console.log(`Created configuration in "${targetPath}"`)
-        break
-      default:
-        console.log('WIP!')
-    }
+  if (action === 'init') {
+    const targetFile = `${Object.keys(self.bin)[0]}.config.js`
+    const targetPath = path.join(process.cwd(), targetFile)
+    await main.init(targetPath)
+    console.log(`Created configuration in "${targetPath}"`)
+  } else if (action === 'create') {
+    const name = cli.input[1]
+    if (!name) throw new Error('No name supplied for "create" command.')
+    const targetPath = await main.create(name)
+    console.log(`Created migration in "${targetPath}`)
   } else {
     cli.showHelp(1)
   }
-})()
+})().catch(err => {
+  console.error(err)
+  cli.showHelp(1)
+})
