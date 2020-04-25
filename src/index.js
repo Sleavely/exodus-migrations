@@ -83,7 +83,7 @@ exports.run = async () => {
     delete job.path
   })
   await config.storeState(JSON.stringify(state), context)
-  return state
+  return { state, ranMigrations: pendingMigrations }
 }
 
 exports.rollback = async () => {}
