@@ -1,5 +1,8 @@
 const { getConfig, getSampleConfig } = require('./config')
+const { getSampleMigration } = require('./migrations')
 const { listDirectoryFiles, writeFile } = require('./utils/fs')
+const path = require('path')
+const slugify = require('slugify')
 
 /**
  * Create a sample configuration in the supplied path
@@ -7,6 +10,19 @@ const { listDirectoryFiles, writeFile } = require('./utils/fs')
 exports.init = async (targetPath) => {
   const sampleConfig = await getSampleConfig()
   await writeFile(targetPath, sampleConfig)
+}
+
+/**
+ * Create a migration file in the migrations directory
+ */
+exports.create = async (name) => {
+  const slug = slugify(name)
+  const config = await getConfig()
+  const targetDir = config.migrationsDirectory
+  const targetName = `${Date.now()}-${slug}.js`
+  const statePath = path.join(targetDir, targetName)
+  const template = await getSampleMigration()
+  await writeFile(statePath, template, 'utf8')
 }
 
 /**
