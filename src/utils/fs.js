@@ -4,6 +4,7 @@ const { promisify } = require('util')
 
 exports.access = promisify(fs.access)
 exports.lstat = promisify(fs.lstat)
+exports.mkdir = promisify(fs.mkdir)
 exports.readDir = promisify(fs.readdir)
 exports.readFile = promisify(fs.readFile)
 exports.stat = promisify(fs.stat)

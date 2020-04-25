@@ -7,6 +7,10 @@ describe('lstat()', () => {
   it.todo('Calls fs.lstat')
 })
 
+describe('mkdir()', () => {
+  it.todo('Calls fs.mkdir')
+})
+
 describe('readDir()', () => {
   it.todo('Calls fs.readdir')
 })
