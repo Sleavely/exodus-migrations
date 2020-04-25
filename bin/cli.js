@@ -39,6 +39,23 @@ const action = cli.input[0]
     if (!name) throw new Error('No name supplied for "create" command.')
     const targetPath = await main.create(name)
     console.log(`Created migration in "${targetPath}`)
+  } else if (action === 'run') {
+    // Wrap *Each() to print each migration.
+    const config = await main.getConfig()
+    const originalBeforeEach = config.beforeEach
+    config.beforeEach = async (migrationJob, ...additionalArgs) => {
+      console.log(`Running "${migrationJob.filename}"`)
+      await originalBeforeEach(migrationJob, ...additionalArgs)
+    }
+    const originalAfterEach = config.afterEach
+    config.afterEach = async (migrationJob, ...additionalArgs) => {
+      await originalAfterEach(migrationJob, ...additionalArgs)
+      console.log(`Finished "${migrationJob.filename}"`)
+    }
+    // Now run 'em
+    const newState = await main.run()
+    console.log(`Finished running migrations.`)
+    console.log(newState)
   } else {
     cli.showHelp(1)
   }
