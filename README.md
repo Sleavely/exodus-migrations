@@ -36,3 +36,5 @@ $ exodus --help
   For more information, see:
   https://github.com/Sleavely/exodus-migrations
 ```
+
+Exodus was largely inspired by the flexibility and user experience of [`migrat`](https://github.com/naturalatlas/migrat), and many of the configurables and templates have been forked from there. The major difference is that callbacks are a thing of the past, kicked aside in favor of async-await patterns.
