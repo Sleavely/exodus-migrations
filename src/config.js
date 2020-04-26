@@ -96,17 +96,4 @@ const defaultConfig = {
   // are released and state has been stored. Use this to tear
   // down any connections established in `initialize`.
   terminate: async () => {},
-
-  // Invoked at the beginning of a migration
-  // run. Use this to establish a global lock. You can
-  // either wait for a lock to become available, or fail.
-  lock: async () => {},
-
-  // Implement this to release any global lock acquired by the `lock` function.
-  unlock: async () => {},
-
-  // The number of milliseconds to give up after if
-  // a lock cannot be obtained or released. This is only
-  // applicable if the `lock` function is implemented.
-  lockTimeout: 0,
 }
