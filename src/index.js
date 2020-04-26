@@ -45,7 +45,7 @@ exports.run = async () => {
   const files = await listDirectoryFiles(config.migrationsDirectory)
 
   // figure out which ones havent already been ran
-  const state = JSON.parse(await config.fetchState(context))
+  const state = await config.fetchState(context)
   state.history = state.history || []
 
   // create an ID for our round so we can undo latest batch later
@@ -87,7 +87,7 @@ exports.run = async () => {
   state.history.forEach((job) => {
     delete job.path
   })
-  await config.storeState(JSON.stringify(state), context)
+  await config.storeState(state, context)
   return { state, ranMigrations: pendingMigrations }
 }
 

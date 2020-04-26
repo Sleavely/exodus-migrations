@@ -28,17 +28,17 @@ exports.getConfig = async () => {
     if (!_config.storeState) {
       const statePath = path.join(configDir, 'exodus.state.json')
       _config.storeState = async (state) => {
-        return fs.writeFile(statePath, state, 'utf8')
+        return fs.writeFile(statePath, JSON.stringify(state, null, 2), 'utf8')
       }
     }
     if (!_config.fetchState) {
       _config.fetchState = async () => {
         const statePath = path.join(configDir, 'exodus.state.json')
         try {
-          return await fs.readFile(statePath, 'utf8')
+          return JSON.parse(await fs.readFile(statePath, 'utf8'))
         } catch (err) {
           if (err.code !== 'ENOENT') throw err
-          return '{}'
+          return {}
         }
       }
     }
@@ -50,9 +50,8 @@ const defaultConfig = {
   // The folder to store migration scripts in.
   migrationsDirectory: './migrations',
 
-  // Persists the current migration state. The `state`
-  // argument will always be a JSON-serialized object.
-  // Store it to redis, disk, database, ... whatever suits you.
+  // Persists the current migration state. The `state` argument
+  // will always be an object. Store it as JSON to redis, disk, etc.
   // OPTIONAL: If undefined, Exodus falls back to exodus.state.json
   // storeState: async (state, context) => {},
 
