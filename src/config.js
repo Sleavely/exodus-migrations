@@ -50,6 +50,8 @@ exports.getConfig = async () => {
     _config.fetchState = async () => {
       if (!_state) {
         _state = await originalStateGetter()
+        if (!_state) _state = {}
+        _state.history = _state.history || []
       }
       return _state
     }

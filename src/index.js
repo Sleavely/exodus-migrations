@@ -46,7 +46,6 @@ exports.run = async () => {
 
   // figure out which ones havent already been ran
   const state = await config.fetchState(context)
-  state.history = state.history || []
 
   // create an ID for our round so we can undo latest batch later
   const roundId = crypto.randomBytes(20).toString('hex')
