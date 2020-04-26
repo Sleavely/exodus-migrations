@@ -8,6 +8,7 @@ exports.getSampleConfig = async () => {
 
 let _config
 let _context
+let _state
 exports.getConfig = async () => {
   if (!_config) {
     const configName = 'exodus.config.js'
@@ -42,6 +43,15 @@ exports.getConfig = async () => {
           return {}
         }
       }
+    }
+
+    // Transform state into a singleton
+    const originalStateGetter = _config.fetchState
+    _config.fetchState = async () => {
+      if (!_state) {
+        _state = await originalStateGetter()
+      }
+      return _state
     }
 
     // Transform context into a singleton
