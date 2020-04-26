@@ -1,6 +1,7 @@
 const { getConfig, getSampleConfig } = require('./config')
 const { getSampleMigration } = require('./migrations')
 const { listDirectoryFiles, mkdir, writeFile } = require('./utils/fs')
+const crypto = require('crypto')
 const path = require('path')
 const slugify = require('slugify')
 
@@ -47,6 +48,9 @@ exports.run = async () => {
   const state = JSON.parse(await config.fetchState(context))
   state.history = state.history || []
 
+  // create an ID for our round so we can undo latest batch later
+  const roundId = crypto.randomBytes(20).toString('hex')
+
   // queue each pending to have up() called later
   const alreadyRanFiles = state.history.map(({ filename }) => filename)
   const pendingMigrations = files
@@ -55,6 +59,7 @@ exports.run = async () => {
     })
     .sort()
     .map((filename) => ({
+      roundId,
       filename,
       path: path.join(config.migrationsDirectory, filename),
     }))
