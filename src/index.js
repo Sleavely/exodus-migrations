@@ -71,12 +71,15 @@ exports.run = async () => {
       // beforeEach()
       migrationJob.startedAt = (new Date()).toJSON()
       await config.beforeEach(migrationJob)
+
       // Run the migration.
       const migrationModule = require(migrationJob.path)
       await migrationModule.up(context)
+
       // afterEach()
       migrationJob.finishedAt = (new Date()).toJSON()
       await config.afterEach(migrationJob)
+
       state.history.push(migrationJob)
     }
     await config.afterAll(pendingMigrations)
@@ -88,6 +91,7 @@ exports.run = async () => {
     delete job.path
   })
   await config.storeState(state, context)
+
   return { state, ranMigrations: pendingMigrations }
 }
 
