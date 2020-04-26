@@ -26,7 +26,6 @@ $ exodus --help
     init              Adds a config file in your project directory
     create <name>     Creates a new file in your migrations dir
     run               Runs all remaining migrations
-    rollback <file>   Rolls back all migrations to and including <file>
 
   Options
     --help
