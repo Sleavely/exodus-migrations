@@ -21,3 +21,12 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       - run: npm test
+
+      - run: node bin/cli.js init
+
+      - run: node bin/cli.js create test-migration
+
+      - run: node bin/cli.js run
+
+      # And again to make sure it doesnt crash when queue is empty
+      - run: node bin/cli.js run
