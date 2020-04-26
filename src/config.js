@@ -47,38 +47,50 @@ exports.getConfig = async () => {
 }
 
 const defaultConfig = {
-  // The folder to store migration scripts in.
+  /**
+   * @name migrationsDirectory
+   *
+   * The folder to store migration scripts in,
+   * relative to your configuration file.
+   */
   migrationsDirectory: './migrations',
 
-  // Persists the current migration state. The `state` argument
-  // will always be an object. Store it as JSON to redis, disk, etc.
-  // OPTIONAL: If undefined, Exodus falls back to exodus.state.json
-  // storeState: async (state, context) => {},
-
-  // This method is responsible for fetching the
-  // current migration state, persisted by `storeState`.
-  // OPTIONAL: If undefined, Exodus falls back to exodus.state.json
-  // fetchState: async (context) => {},
-
-  // Invoked at the beginning of a run, this method
-  // should return an object with any details you want passed
-  // through to all migrations. This can be database connections,
-  // logging interfaces, etc.
+  /**
+   * @name context
+   *
+   * Invoked at the beginning of a run, this method can return
+   * an object with any details you want passed through to all
+   * migrations, such as database connections, loggers, etc.
+   *
+   * @return {object}
+   */
   context: async () => {
     return {}
   },
 
-  // Provide a function that returns a string to use
-  // as the source for a new migration file.
-  migrationTemplate: async () => {
-    return fs.readFile(path.resolve(__dirname, './templates/migration.js'), 'utf8')
-  },
+  /**
+   * @name storeState
+   *
+   * Called to persist current migration state. Use this to store
+   * the `state` argument in Redis, to disk, your database etc.
+   * If undefined, Exodus falls back to exodus.state.json
+   *
+   * @param state The state object to be stored.
+   * @param context The object you returned in `context`
+   */
+  // storeState: async (state, context) => {},
 
-  // Invoked at the very beginning of a run before
-  // any locks are acquired or state is read. Use this to
-  // establish any connections needed by `fetchState`,
-  // `storeState`, `lock`, `unlock`.
-  initialize: async () => {},
+  /**
+   * @name initialize
+   *
+   * This method is responsible for fetching the current
+   * migration state, persisted by `storeState`.
+   * If undefined, Exodus falls back to exodus.state.json
+   *
+   * @param context The object you returned in `context`
+   * @return {object}
+   */
+  // fetchState: async (context) => {},
 
   // Callback executed right before all queued migrations are executed.
   beforeAll: async (pendingMigrations) => {},
@@ -92,8 +104,4 @@ const defaultConfig = {
   // Callback executed right after all queued migrations are executed.
   afterAll: async (pendingMigrations) => {},
 
-  // Invoked at the very tail end of a run once locks
-  // are released and state has been stored. Use this to tear
-  // down any connections established in `initialize`.
-  terminate: async () => {},
 }
