@@ -47,9 +47,9 @@ exports.getConfig = async () => {
 
     // Transform state into a singleton
     const originalStateGetter = _config.fetchState
-    _config.fetchState = async () => {
+    _config.fetchState = async (...args) => {
       if (!_state) {
-        _state = await originalStateGetter()
+        _state = await originalStateGetter(...args)
         if (!_state) _state = {}
         _state.history = _state.history || []
       }
@@ -58,9 +58,9 @@ exports.getConfig = async () => {
 
     // Transform context into a singleton
     const originalContextGetter = _config.context
-    _config.context = async () => {
+    _config.context = async (...args) => {
       if (!_context) {
-        _context = await originalContextGetter()
+        _context = await originalContextGetter(...args)
       }
       return _context
     }
