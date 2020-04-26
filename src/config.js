@@ -81,16 +81,16 @@ const defaultConfig = {
   initialize: async () => {},
 
   // Callback executed right before all queued migrations are executed.
-  beforeAll: async (runlist) => {},
+  beforeAll: async (pendingMigrations) => {},
 
   // Callback executed before each migration.
-  beforeEach: async (runlistItem) => {},
+  beforeEach: async (migrationJob) => {},
 
   // Callback executed after each migration.
-  afterEach: async (runlistItem) => {},
+  afterEach: async (migrationJob) => {},
 
   // Callback executed right after all queued migrations are executed.
-  afterAll: async (runlist) => {},
+  afterAll: async (pendingMigrations) => {},
 
   // Invoked at the very tail end of a run once locks
   // are released and state has been stored. Use this to tear

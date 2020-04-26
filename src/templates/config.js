@@ -26,42 +26,18 @@ module.exports = exports = {
   //   return require('fs').readFileSync('path/to/template.js', 'utf8',)
   // },
 
-  // // OPTIONAL. Invoked at the very beginning of a run before
-  // // any locks are acquired or state is read. Use this to
-  // // establish any connections needed by `fetchState`,
-  // // `storeState`, `lock`, `unlock`.
-  // initialize: async () => {},
-
   // // OPTIONAL. Callback executed right before all
   // // queued migrations are executed.
-  // beforeAll: async (runlist) => {},
+  // beforeAll: async (pendingMigrations) => {},
 
   // // OPTIONAL. Callback executed before each migration.
-  // beforeEach: async (runlistItem) => {},
+  // beforeEach: async (migrationJob) => {},
 
   // // OPTIONAL. Callback executed after each migration.
-  // afterEach: async (runlistItem) => {},
+  // afterEach: async (migrationJob) => {},
 
   // // OPTIONAL. Callback executed right after all
   // // queued migrations are executed.
-  // afterAll: async (runlist) => {},
+  // afterAll: async (pendingMigrations) => {},
 
-  // // OPTIONAL. Invoked at the very tail end of a run once locks
-  // // are released and state has been stored. Use this to tear
-  // // down any connections established in `initialize`.
-  // terminate: async () => {},
-
-  // // OPTIONAL. Invoked at the beginning of a migration
-  // // run. Use this to establish a global lock. You can
-  // // either wait for a lock to become available, or fail.
-  // lock: async () => {},
-
-  // // OPTIONAL (unless `lock` is implemented). Implement this to
-  // // release any global lock acquired by the `lock` function.
-  // unlock: async () => {},
-
-  // // OPTIONAL. The number of milliseconds to give up after if
-  // // a lock cannot be obtained or released. This is only
-  // // applicable if the `lock` function is implemented.
-  // lockTimeout: 0,
 }
