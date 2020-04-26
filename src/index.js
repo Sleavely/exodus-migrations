@@ -1,7 +1,6 @@
 const { getConfig, getSampleConfig } = require('./config')
-const { getSampleMigration } = require('./migrations')
-const { listDirectoryFiles, mkdir, writeFile } = require('./utils/fs')
-const crypto = require('crypto')
+const { getSampleMigration, getPendingJobs, up } = require('./migrations')
+const { mkdir, writeFile } = require('./utils/fs')
 const path = require('path')
 const slugify = require('slugify')
 
@@ -39,47 +38,15 @@ exports.run = async () => {
   // find the config
   const config = await getConfig()
 
+  // Initialize context and load history
   const context = await config.context()
-  // figure out which directory to look for migrations
-  // in and find all files in the directory
-  const files = await listDirectoryFiles(config.migrationsDirectory)
-
-  // figure out which ones havent already been ran
   const state = await config.fetchState(context)
 
-  // create an ID for our round so we can undo latest batch later
-  const roundId = crypto.randomBytes(20).toString('hex')
-
-  // queue each pending to have up() called later
-  const alreadyRanFiles = state.history.map(({ filename }) => filename)
-  const pendingMigrations = files
-    .filter((filename) => {
-      return !alreadyRanFiles.includes(filename)
-    })
-    .sort()
-    .map((filename) => ({
-      roundId,
-      filename,
-      path: path.join(config.migrationsDirectory, filename),
-    }))
-
-  // if the queue is non-empty, call beforeAll()
+  const pendingMigrations = await getPendingJobs()
   if (pendingMigrations.length) {
     await config.beforeAll(pendingMigrations)
     for (const migrationJob of pendingMigrations) {
-      // beforeEach()
-      migrationJob.startedAt = (new Date()).toJSON()
-      await config.beforeEach(migrationJob)
-
-      // Run the migration.
-      const migrationModule = require(migrationJob.path)
-      await migrationModule.up(context)
-
-      // afterEach()
-      migrationJob.finishedAt = (new Date()).toJSON()
-      await config.afterEach(migrationJob)
-
-      state.history.push(migrationJob)
+      await up(migrationJob)
     }
     await config.afterAll(pendingMigrations)
   }
