@@ -157,3 +157,7 @@ module.exports = exports = {
 
 }
 ```
+
+### Examples
+
+See the [examples directory](./examples) for guides on use-cases the community has found helpful.
