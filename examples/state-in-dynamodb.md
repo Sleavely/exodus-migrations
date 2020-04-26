@@ -47,3 +47,7 @@ module.exports = exports = {
 }
 
 ```
+
+Final result?
+
+![Screenshot of DynamoDB table](https://i.imgur.com/xIZaGLR.png)
