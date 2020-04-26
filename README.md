@@ -9,7 +9,7 @@
 ## Install
 
 ```
-$ npm i -g exodus
+$ npm i -g github:Sleavely/exodus-migrations
 ```
 
 Node 10+ is recommended.
