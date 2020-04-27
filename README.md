@@ -18,6 +18,7 @@ Node 10+ is recommended.
 
 Exodus was largely inspired by the flexibility and user experience of [`migrat`](https://github.com/naturalatlas/migrat), and much of the configurable behavior and templates have been forked from there.
 
+The main usage pattern consists of migration definitions that allow you to introduce version-controlled changes in your application, such as adding a field to a database or changing a configuration for your e-commerce.
 
 ### CLI
 
@@ -42,7 +43,7 @@ $ exodus --help
 
 ### Migrations
 
-A migration file is simply a JS module that exposes `up()` and `down()` methods.
+A migration definition is a regular Node module that exposes an `up()` method that introduces a change, and a `down()` method that allows the user (that's you!) to reverse the change later.
 
 An example migration might look like:
 
