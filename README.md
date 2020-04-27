@@ -2,7 +2,7 @@
 
 > Framework-agnostic migrations
 
-[ ![CircleCI](https://img.shields.io/circleci/build/github/Sleavely/exodus-migrations?token=22848581bf01ecc38384dd7f568a8404e84c21d2) ](https://circleci.com/gh/Sleavely/exodus-migrations)
+[ ![npm version](https://img.shields.io/npm/v/dynamo-plus.svg?style=flat) ](https://npmjs.org/package/dynamo-plus "View this project on npm") [ ![CircleCI](https://img.shields.io/circleci/build/github/Sleavely/exodus-migrations?token=22848581bf01ecc38384dd7f568a8404e84c21d2) ](https://circleci.com/gh/Sleavely/exodus-migrations)
 
 [Github](https://github.com/Sleavely/exodus-migrations) | [NPM](https://www.npmjs.com/package/exodus)
 
@@ -16,9 +16,10 @@ Node 10+ is recommended.
 
 ## Usage
 
+Exodus allows you to create migration definitions, modules that allow you to introduce version-controlled changes in your application, such as adding a field to a database or changing a configuration for your e-commerce.
+
 Exodus was largely inspired by the flexibility and user experience of [`migrat`](https://github.com/naturalatlas/migrat), and much of the configurable behavior and templates have been forked from there.
 
-The main usage pattern consists of migration definitions that allow you to introduce version-controlled changes in your application, such as adding a field to a database or changing a configuration for your e-commerce.
 
 ### CLI
 
