@@ -1,38 +1,174 @@
+const fs = require('fs')
+const path = require('path')
+
+jest.mock('fs')
+jest.mock('path')
+jest.mock('util', () => ({
+  promisify: jest.fn().mockImplementation(fn => fn),
+}))
 
 describe('access()', () => {
-  it.todo('Calls fs.access')
+  it('Calls fs.access', () => {
+    const { access } = jest.requireActual('./fs')
+    access()
+
+    expect(fs.access).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('lstat()', () => {
-  it.todo('Calls fs.lstat')
+  it('Calls fs.lstat', () => {
+    const { lstat } = jest.requireActual('./fs')
+
+    lstat()
+
+    expect(fs.lstat).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('mkdir()', () => {
-  it.todo('Calls fs.mkdir')
+  it('Calls fs.readdir', () => {
+    const { mkdir } = jest.requireActual('./fs')
+
+    mkdir()
+
+    expect(fs.mkdir).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('readDir()', () => {
-  it.todo('Calls fs.readdir')
+  it('Calls fs.readdir', () => {
+    const { readDir } = jest.requireActual('./fs')
+
+    readDir()
+
+    expect(fs.readdir).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('readFile()', () => {
-  it.todo('Calls fs.readFile')
+  it('Calls fs.readFile', () => {
+    const { readFile } = jest.requireActual('./fs')
+
+    readFile()
+
+    expect(fs.readFile).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('stat()', () => {
-  it.todo('Calls fs.stat')
+  it('Calls fs.stat', () => {
+    const { stat } = jest.requireActual('./fs')
+
+    stat()
+
+    expect(fs.stat).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('writeFile()', () => {
-  it.todo('Calls fs.writeFile')
+  it('Calls fs.writeFile', () => {
+    const { writeFile } = jest.requireActual('./fs')
+
+    writeFile()
+
+    expect(fs.writeFile).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('findUpwardsFile()', () => {
-  it.todo('looks for file in the supplied directory')
-  it.todo('defaults to process.cwd()')
-  it.todo('returns an absolute path when matching file is found')
-  it.todo('returns false when file cannot be found')
-  it.todo('traverses the directory tree')
+  const directory = '/home/test'
+  const filename = 'test.file'
+  const parsedPath = {
+    dir: directory,
+    base: filename,
+    root: '/',
+  }
+  const accessError = {
+    code: 'ENOENT',
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+
+    path.parse.mockReturnValue(parsedPath)
+    path.join.mockReturnValue(directory.concat('/', filename))
+  })
+  it('looks for file in the supplied directory', async () => {
+    const { findUpwardsFile } = jest.requireActual('./fs')
+
+    path.parse.mockReturnValue(parsedPath)
+    path.join.mockReturnValue(directory.concat('/', filename))
+
+    fs.access.mockReturnValue()
+
+    const targetFile = await findUpwardsFile(filename, directory)
+
+    expect(fs.access).toHaveBeenCalledTimes(1)
+    expect(targetFile).toBe('/home/test/test.file')
+  })
+  it('defaults to process.cwd()', async () => {
+    const { findUpwardsFile } = jest.requireActual('./fs')
+
+    const cwdSpy = jest.spyOn(process, 'cwd')
+    cwdSpy.mockReturnValue(directory)
+
+    fs.access.mockReturnValue()
+
+    await findUpwardsFile(filename)
+
+    expect(cwdSpy).toHaveBeenCalledTimes(1)
+  })
+  it('returns an absolute path when matching file is found', async () => {
+    const { findUpwardsFile } = jest.requireActual('./fs')
+
+    fs.access.mockResolvedValue()
+
+    const targetFile = await findUpwardsFile(filename, directory)
+
+    expect(targetFile).toBe('/home/test/test.file')
+  })
+  it('returns false when file cannot be found', async () => {
+    const { findUpwardsFile } = jest.requireActual('./fs')
+
+    const rootDir = '/'
+    const rootPath = {
+      ...parsedPath,
+      dir: rootDir,
+    }
+
+    path.parse.mockReturnValue(rootPath)
+    fs.access.mockRejectedValue(accessError)
+
+    const targetFile = await findUpwardsFile(filename, rootDir)
+
+    expect(targetFile).toBeFalse()
+  })
+  it('traverses the directory tree', async () => {
+    const { findUpwardsFile } = jest.requireActual('./fs')
+
+    const directory = '/test1/test2'
+    const filename = 'test.file'
+    const parsedPath = {
+      dir: directory,
+      base: filename,
+      root: '/',
+    }
+
+    path.parse.mockReturnValue(parsedPath)
+    path.join.mockReturnValue(directory.concat('/', filename, directory))
+    path.dirname.mockReturnValueOnce('/test1')
+
+    fs.access.mockRejectedValueOnce(accessError)
+    fs.access.mockResolvedValueOnce()
+
+    await findUpwardsFile(filename, directory)
+
+    expect(path.parse).toHaveBeenCalledTimes(2)
+    expect(path.join).toHaveBeenCalledTimes(4)
+    expect(path.dirname).toHaveBeenCalledTimes(1)
+    expect(fs.access).toHaveBeenCalledTimes(2)
+  })
   it.todo('???')
 })
 describe('listDirectoryFiles()', () => {
