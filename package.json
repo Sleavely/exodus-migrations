@@ -1,6 +1,6 @@
 {
-  "name": "exodus-migrations",
-  "version": "0.0.0",
+  "name": "exodus",
+  "version": "1.0.0",
   "description": "Framework-agnostic migrations.",
   "main": "./src/index.js",
   "bin": {

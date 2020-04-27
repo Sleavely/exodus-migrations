@@ -1,4 +1,4 @@
-# exodus-migrations
+# exodus
 
 > Framework-agnostic migrations
 
@@ -9,14 +9,14 @@
 ## Install
 
 ```
-$ npm i -g github:Sleavely/exodus-migrations
+$ npm i -g exodus
 ```
 
 Node 10+ is recommended.
 
 ## Usage
 
-Exodus was largely inspired by the flexibility and user experience of [`migrat`](https://github.com/naturalatlas/migrat), and many of the configurables and templates have been forked from there. The major difference is that callbacks are a thing of the past, kicked aside in favor of async-await patterns.
+Exodus was largely inspired by the flexibility and user experience of [`migrat`](https://github.com/naturalatlas/migrat), and much of the configurable behavior and templates have been forked from there.
 
 
 ### CLI
@@ -161,3 +161,8 @@ module.exports = exports = {
 ### Examples
 
 See the [examples directory](./examples) for guides on use-cases the community has found helpful.
+
+
+## Contributing
+
+Open source software is awesome, and so are you!
