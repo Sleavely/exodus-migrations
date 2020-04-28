@@ -1,22 +1,24 @@
-# exodus-migrations
+# exodus
 
 > Framework-agnostic migrations
 
-[ ![CircleCI](https://img.shields.io/circleci/build/github/Sleavely/exodus-migrations?token=22848581bf01ecc38384dd7f568a8404e84c21d2) ](https://circleci.com/gh/Sleavely/exodus-migrations)
+[ ![npm version](https://img.shields.io/npm/v/exodus.svg?style=flat) ](https://npmjs.org/package/exodus "View this project on npm") [ ![CircleCI](https://img.shields.io/circleci/build/github/Sleavely/exodus-migrations?token=22848581bf01ecc38384dd7f568a8404e84c21d2) ](https://circleci.com/gh/Sleavely/exodus-migrations)
 
 [Github](https://github.com/Sleavely/exodus-migrations) | [NPM](https://www.npmjs.com/package/exodus)
 
 ## Install
 
 ```
-$ npm i -g github:Sleavely/exodus-migrations
+$ npm i -g exodus
 ```
 
 Node 10+ is recommended.
 
 ## Usage
 
-Exodus was largely inspired by the flexibility and user experience of [`migrat`](https://github.com/naturalatlas/migrat), and many of the configurables and templates have been forked from there. The major difference is that callbacks are a thing of the past, kicked aside in favor of async-await patterns.
+Exodus allows you to create migration definitions, modules that allow you to introduce version-controlled changes in your application, such as adding a field to a database or changing a configuration for your e-commerce.
+
+Exodus was largely inspired by the flexibility and user experience of [`migrat`](https://github.com/naturalatlas/migrat), and much of the configurable behavior and templates have been forked from there.
 
 
 ### CLI
@@ -42,7 +44,7 @@ $ exodus --help
 
 ### Migrations
 
-A migration file is simply a JS module that exposes `up()` and `down()` methods.
+A migration definition is a regular Node module that exposes an `up()` method that introduces a change, and a `down()` method that allows the user (that's you!) to reverse the change later.
 
 An example migration might look like:
 
@@ -161,3 +163,8 @@ module.exports = exports = {
 ### Examples
 
 See the [examples directory](./examples) for guides on use-cases the community has found helpful.
+
+
+## Contributing
+
+Open source software is awesome, and so are you!
