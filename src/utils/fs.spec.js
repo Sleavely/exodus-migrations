@@ -86,8 +86,13 @@ describe('findUpwardsFile()', () => {
   const directory = '/home/test'
   const filename = 'test.file'
   const parsedPath = toPathObject(directory, filename)
-  const accessError = {
-    code: 'ENOENT',
+  const errors = {
+    random: {
+      code: 'TEST',
+    },
+    enoent: {
+      code: 'ENOENT',
+    },
   }
 
   beforeEach(() => {
@@ -140,7 +145,7 @@ describe('findUpwardsFile()', () => {
     }
 
     path.parse.mockReturnValue(rootPath)
-    fs.access.mockRejectedValue(accessError)
+    fs.access.mockRejectedValue(errors.enoent)
 
     const targetFile = await findUpwardsFile(filename, rootDir)
 
@@ -153,7 +158,7 @@ describe('findUpwardsFile()', () => {
     path.join.mockReturnValue(directory.concat('/', filename, directory))
     path.dirname.mockReturnValueOnce('/test1')
 
-    fs.access.mockRejectedValueOnce(accessError)
+    fs.access.mockRejectedValueOnce(errors.enoent)
     fs.access.mockResolvedValueOnce()
 
     await findUpwardsFile(filename, directory)
@@ -163,7 +168,22 @@ describe('findUpwardsFile()', () => {
     expect(path.dirname).toHaveBeenCalledTimes(1)
     expect(fs.access).toHaveBeenCalledTimes(2)
   })
-  it.todo('???')
+  it('propagates error when fs access throws an error different than ENOENT', () => {
+    const { findUpwardsFile } = jest.requireActual('./fs')
+
+    const rootDir = '/'
+    const rootPath = {
+      ...parsedPath,
+      dir: rootDir,
+    }
+
+    path.parse.mockReturnValue(rootPath)
+    fs.access.mockRejectedValue(errors.random)
+
+    expect(findUpwardsFile(filename, rootDir))
+      .rejects
+      .toMatchObject(errors.random)
+  })
 })
 describe('listDirectoryFiles()', () => {
   it.todo('lists files in the supplied directory')
