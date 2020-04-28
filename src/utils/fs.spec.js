@@ -7,6 +7,12 @@ jest.mock('util', () => ({
   promisify: jest.fn().mockImplementation(fn => fn),
 }))
 
+const toPathObject = (directory, filename) => ({
+  dir: directory,
+  base: filename,
+  root: '/',
+})
+
 describe('access()', () => {
   it('Calls fs.access', () => {
     const { access } = jest.requireActual('./fs')
@@ -79,11 +85,7 @@ describe('writeFile()', () => {
 describe('findUpwardsFile()', () => {
   const directory = '/home/test'
   const filename = 'test.file'
-  const parsedPath = {
-    dir: directory,
-    base: filename,
-    root: '/',
-  }
+  const parsedPath = toPathObject(directory, filename)
   const accessError = {
     code: 'ENOENT',
   }
@@ -146,14 +148,6 @@ describe('findUpwardsFile()', () => {
   })
   it('traverses the directory tree', async () => {
     const { findUpwardsFile } = jest.requireActual('./fs')
-
-    const directory = '/test1/test2'
-    const filename = 'test.file'
-    const parsedPath = {
-      dir: directory,
-      base: filename,
-      root: '/',
-    }
 
     path.parse.mockReturnValue(parsedPath)
     path.join.mockReturnValue(directory.concat('/', filename, directory))
