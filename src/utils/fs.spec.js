@@ -83,6 +83,7 @@ describe('findUpwardsFile()', () => {
   })
 
   it('looks for file in the supplied directory', async () => {
+    const path = jest.requireActual('path')
     const { findUpwardsFile } = jest.requireActual('./fs')
 
     fs.access.mockReturnValue()
@@ -90,7 +91,7 @@ describe('findUpwardsFile()', () => {
     const targetFile = await findUpwardsFile(filename, directory)
 
     expect(fs.access).toHaveBeenCalledTimes(1)
-    expect(targetFile).toBe('/home/test/test.file')
+    expect(targetFile).toBe(path.normalize('/home/test/test.file'))
   })
   it('defaults to process.cwd()', async () => {
     const { findUpwardsFile } = jest.requireActual('./fs')
@@ -107,13 +108,14 @@ describe('findUpwardsFile()', () => {
     cwdSpy.mockRestore()
   })
   it('returns an absolute path when matching file is found', async () => {
+    const path = jest.requireActual('path')
     const { findUpwardsFile } = jest.requireActual('./fs')
 
     fs.access.mockResolvedValue()
 
     const targetFile = await findUpwardsFile(filename, directory)
 
-    expect(targetFile).toBe('/home/test/test.file')
+    expect(targetFile).toBe(path.normalize('/home/test/test.file'))
   })
   it('returns false when file cannot be found', async () => {
     const { findUpwardsFile } = jest.requireActual('./fs')
