@@ -150,7 +150,7 @@ describe('findUpwardsFile()', () => {
       .toMatchObject(error)
   })
 })
-describe.only('listDirectoryFiles()', () => {
+describe('listDirectoryFiles()', () => {
   it('lists files in the supplied directory', async () => {
     const { listDirectoryFiles } = jest.requireActual('./fs')
     const { Dirent, constants } = jest.requireActual('fs')
