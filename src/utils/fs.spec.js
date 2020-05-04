@@ -150,7 +150,21 @@ describe('findUpwardsFile()', () => {
       .toMatchObject(error)
   })
 })
-describe('listDirectoryFiles()', () => {
-  it.todo('lists files in the supplied directory')
+describe.only('listDirectoryFiles()', () => {
+  it('lists files in the supplied directory', async () => {
+    const { listDirectoryFiles } = jest.requireActual('./fs')
+    const { Dirent, constants } = jest.requireActual('fs')
+
+    const { UV_DIRENT_DIR, UV_DIRENT_FILE } = constants
+
+    const file = new Dirent('file', UV_DIRENT_FILE)
+    const directory = new Dirent('directory', UV_DIRENT_DIR)
+
+    fs.readdir.mockResolvedValue([ file, directory ])
+
+    const files = await listDirectoryFiles()
+
+    expect(files).toMatchObject([ file.name ])
+  })
   it.todo('???')
 })
