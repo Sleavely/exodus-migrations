@@ -1,6 +1,30 @@
+jest.mock('./utils/fs')
+const fs = require('./utils/fs')
+
+const config = jest.requireActual('./config')
+
+beforeEach(() => {
+  jest.clearAllMocks()
+})
 
 describe('getSampleConfig()', () => {
-  it.todo('Calls fs.access')
+  it('reads sample template relative to itself', async () => {
+    const path = jest.requireActual('path')
+
+    await config.getSampleConfig()
+
+    expect(fs.readFile).toHaveBeenCalledTimes(1)
+    expect(fs.readFile.mock.calls[0][0]).toBe(
+      path.join(__dirname, 'templates', 'config.js')
+    )
+  })
+
+  it('returns the contents of the template as a string', async () => {
+    const sampleTemplate = 'The bestest of templates.'
+    fs.readFile.mockResolvedValueOnce(sampleTemplate)
+
+    await expect(config.getSampleConfig()).resolves.toBe(sampleTemplate)
+  })
 })
 
 describe('getConfig()', () => {
