@@ -50,19 +50,7 @@ exports.findUpwardsFile = async (filename, directory = process.cwd()) => {
  */
 exports.listDirectoryFiles = async (directoryPath) => {
   // Note: withFileTypes requires Node 10+
-  const dir = await exports.readDir(directoryPath, { withFileTypes: true })
-
-  // Backwards compatibility
-  const dirItems = await Promise.all(
-    dir.map(async (item) => {
-      // node 10.10+
-      if (item.isDirectory) return item
-      // Node 8 mostly
-      const fsStatsObject = await exports.lstat(path.join(directoryPath, item))
-      fsStatsObject.name = item
-      return fsStatsObject
-    })
-  )
+  const dirItems = await exports.readDir(directoryPath, { withFileTypes: true })
 
   return dirItems
     .filter(item => !item.isDirectory())

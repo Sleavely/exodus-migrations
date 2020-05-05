@@ -17,6 +17,9 @@
   "homepage": "https://github.com/Sleavely/exodus-migrations",
   "repository": "github:Sleavely/exodus-migrations",
   "license": "MIT",
+  "engines" : {
+    "node" : ">=10.10.0"
+  },
   "devDependencies": {
     "@types/jest": "^24.9.1",
     "eslint": "^5.16.0",

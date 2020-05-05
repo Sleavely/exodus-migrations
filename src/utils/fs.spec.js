@@ -25,7 +25,7 @@ describe('lstat()', () => {
 })
 
 describe('mkdir()', () => {
-  it('Calls fs.readdir', async () => {
+  it('Calls fs.mkdir', async () => {
     const { mkdir } = jest.requireActual('./fs')
 
     await mkdir()
@@ -151,6 +151,29 @@ describe('findUpwardsFile()', () => {
   })
 })
 describe('listDirectoryFiles()', () => {
-  it.todo('lists files in the supplied directory')
-  it.todo('???')
+  it('lists files in the supplied directory', async () => {
+    const { listDirectoryFiles } = jest.requireActual('./fs')
+    const { Dirent, constants } = jest.requireActual('fs')
+    const { UV_DIRENT_FILE } = constants
+
+    const file = new Dirent('file', UV_DIRENT_FILE)
+
+    fs.readdir.mockResolvedValue([ file ])
+
+    const files = await listDirectoryFiles()
+
+    expect(files).toMatchObject([ file.name ])
+  })
+  it('ignores subdirectories in the supplied directory', async () => {
+    const { listDirectoryFiles } = jest.requireActual('./fs')
+    const { Dirent, constants } = jest.requireActual('fs')
+    const { UV_DIRENT_DIR } = constants
+
+    const directory = new Dirent('directory', UV_DIRENT_DIR)
+    fs.readdir.mockResolvedValue([ directory ])
+
+    const files = await listDirectoryFiles()
+
+    expect(files).toMatchObject([])
+  })
 })
