@@ -6,19 +6,19 @@ jest.mock('util', () => ({
 }))
 
 describe('access()', () => {
-  it('Calls fs.access', () => {
+  it('Calls fs.access', async () => {
     const { access } = jest.requireActual('./fs')
-    access()
+    await access()
 
     expect(fs.access).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('lstat()', () => {
-  it('Calls fs.lstat', () => {
+  it('Calls fs.lstat', async () => {
     const { lstat } = jest.requireActual('./fs')
 
-    lstat()
+    await lstat()
 
     expect(fs.lstat).toHaveBeenCalledTimes(1)
   })
@@ -28,47 +28,47 @@ describe('mkdir()', () => {
   it('Calls fs.mkdir', () => {
     const { mkdir } = jest.requireActual('./fs')
 
-    mkdir()
+    await mkdir()
 
     expect(fs.mkdir).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('readDir()', () => {
-  it('Calls fs.readdir', () => {
+  it('Calls fs.readdir', async () => {
     const { readDir } = jest.requireActual('./fs')
 
-    readDir()
+    await readDir()
 
     expect(fs.readdir).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('readFile()', () => {
-  it('Calls fs.readFile', () => {
+  it('Calls fs.readFile', async () => {
     const { readFile } = jest.requireActual('./fs')
 
-    readFile()
+    await readFile()
 
     expect(fs.readFile).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('stat()', () => {
-  it('Calls fs.stat', () => {
+  it('Calls fs.stat', async () => {
     const { stat } = jest.requireActual('./fs')
 
-    stat()
+    await stat()
 
     expect(fs.stat).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('writeFile()', () => {
-  it('Calls fs.writeFile', () => {
+  it('Calls fs.writeFile', async () => {
     const { writeFile } = jest.requireActual('./fs')
 
-    writeFile()
+    await writeFile()
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })
