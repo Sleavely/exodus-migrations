@@ -24,7 +24,7 @@ describe('lstat()', () => {
   })
 })
 
-describe('mkdir()', () => {
+describe('mkdir()', async () => {
   it('Calls fs.mkdir', () => {
     const { mkdir } = jest.requireActual('./fs')
 
