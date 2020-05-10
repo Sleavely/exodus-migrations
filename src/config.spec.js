@@ -5,7 +5,7 @@ const fs = require('./utils/fs')
 const path = require('path')
 
 // Emulate a config file
-const virtualConfig = jest.fn({wat:'nmeoprjsdpion'})
+const virtualConfig = jest.fn({})
 const configPath = './config.virtual'
 fs.findUpwardsFile.mockResolvedValue(configPath)
 jest.doMock(configPath, virtualConfig, { virtual: true })
