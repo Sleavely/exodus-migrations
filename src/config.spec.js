@@ -1,7 +1,10 @@
+
+const config = require('./config')
+
 jest.mock('./utils/fs')
 const fs = require('./utils/fs')
 
-const config = jest.requireActual('./config')
+const path = require('path')
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -9,7 +12,6 @@ beforeEach(() => {
 
 describe('getSampleConfig()', () => {
   it('reads sample template relative to itself', async () => {
-    const path = jest.requireActual('path')
 
     await config.getSampleConfig()
 
