@@ -32,6 +32,7 @@ describe('getSampleConfig()', () => {
 describe('getConfig()', () => {
   it.todo('finds config in current or parent directories')
   it.todo('merges with default settings')
+  it.todo('caches resolved configuration in memory (singleton)')
 
   describe('config.migrationsDirectory', () => {
     it.todo('points to an absolute path')
