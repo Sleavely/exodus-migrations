@@ -14,6 +14,7 @@ exports.getConfig = async () => {
     const configName = 'exodus.config.js'
     const targetConfig = await fs.findUpwardsFile(configName)
     if (!targetConfig) throw new Error(`Could not find ${configName} in this or any parent directories.`)
+
     const externalConfig = require(targetConfig)
     _config = {
       ...defaultConfig,
