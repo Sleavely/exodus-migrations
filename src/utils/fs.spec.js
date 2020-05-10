@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 jest.mock('fs')
 jest.mock('util', () => ({
@@ -83,7 +84,6 @@ describe('findUpwardsFile()', () => {
   })
 
   it('looks for file in the supplied directory', async () => {
-    const path = jest.requireActual('path')
     const { findUpwardsFile } = jest.requireActual('./fs')
 
     fs.access.mockReturnValue()
@@ -108,7 +108,6 @@ describe('findUpwardsFile()', () => {
     cwdSpy.mockRestore()
   })
   it('returns an absolute path when matching file is found', async () => {
-    const path = jest.requireActual('path')
     const { findUpwardsFile } = jest.requireActual('./fs')
 
     fs.access.mockResolvedValue()
