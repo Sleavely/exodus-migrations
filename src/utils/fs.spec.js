@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 jest.mock('fs')
 jest.mock('util', () => ({
@@ -90,7 +91,7 @@ describe('findUpwardsFile()', () => {
     const targetFile = await findUpwardsFile(filename, directory)
 
     expect(fs.access).toHaveBeenCalledTimes(1)
-    expect(targetFile).toBe('/home/test/test.file')
+    expect(targetFile).toBe(path.normalize('/home/test/test.file'))
   })
   it('defaults to process.cwd()', async () => {
     const { findUpwardsFile } = jest.requireActual('./fs')
@@ -113,7 +114,7 @@ describe('findUpwardsFile()', () => {
 
     const targetFile = await findUpwardsFile(filename, directory)
 
-    expect(targetFile).toBe('/home/test/test.file')
+    expect(targetFile).toBe(path.normalize('/home/test/test.file'))
   })
   it('returns false when file cannot be found', async () => {
     const { findUpwardsFile } = jest.requireActual('./fs')
