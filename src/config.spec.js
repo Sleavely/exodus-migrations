@@ -1,8 +1,9 @@
+const path = require('path')
 
 const virtualConfig = jest.fn().mockReturnValue({})
 let config
 let fs
-let path = require('path')
+
 beforeEach(() => {
   jest.clearAllMocks()
 
