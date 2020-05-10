@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 jest.mock('fs')
 jest.mock('util', () => ({
@@ -6,69 +7,69 @@ jest.mock('util', () => ({
 }))
 
 describe('access()', () => {
-  it('Calls fs.access', () => {
+  it('Calls fs.access', async () => {
     const { access } = jest.requireActual('./fs')
-    access()
+    await access()
 
     expect(fs.access).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('lstat()', () => {
-  it('Calls fs.lstat', () => {
+  it('Calls fs.lstat', async () => {
     const { lstat } = jest.requireActual('./fs')
 
-    lstat()
+    await lstat()
 
     expect(fs.lstat).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('mkdir()', () => {
-  it('Calls fs.readdir', () => {
+  it('Calls fs.mkdir', async () => {
     const { mkdir } = jest.requireActual('./fs')
 
-    mkdir()
+    await mkdir()
 
     expect(fs.mkdir).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('readDir()', () => {
-  it('Calls fs.readdir', () => {
+  it('Calls fs.readdir', async () => {
     const { readDir } = jest.requireActual('./fs')
 
-    readDir()
+    await readDir()
 
     expect(fs.readdir).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('readFile()', () => {
-  it('Calls fs.readFile', () => {
+  it('Calls fs.readFile', async () => {
     const { readFile } = jest.requireActual('./fs')
 
-    readFile()
+    await readFile()
 
     expect(fs.readFile).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('stat()', () => {
-  it('Calls fs.stat', () => {
+  it('Calls fs.stat', async () => {
     const { stat } = jest.requireActual('./fs')
 
-    stat()
+    await stat()
 
     expect(fs.stat).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('writeFile()', () => {
-  it('Calls fs.writeFile', () => {
+  it('Calls fs.writeFile', async () => {
     const { writeFile } = jest.requireActual('./fs')
 
-    writeFile()
+    await writeFile()
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })
@@ -90,7 +91,7 @@ describe('findUpwardsFile()', () => {
     const targetFile = await findUpwardsFile(filename, directory)
 
     expect(fs.access).toHaveBeenCalledTimes(1)
-    expect(targetFile).toBe('/home/test/test.file')
+    expect(targetFile).toBe(path.normalize('/home/test/test.file'))
   })
   it('defaults to process.cwd()', async () => {
     const { findUpwardsFile } = jest.requireActual('./fs')
@@ -113,7 +114,7 @@ describe('findUpwardsFile()', () => {
 
     const targetFile = await findUpwardsFile(filename, directory)
 
-    expect(targetFile).toBe('/home/test/test.file')
+    expect(targetFile).toBe(path.normalize('/home/test/test.file'))
   })
   it('returns false when file cannot be found', async () => {
     const { findUpwardsFile } = jest.requireActual('./fs')
@@ -151,6 +152,29 @@ describe('findUpwardsFile()', () => {
   })
 })
 describe('listDirectoryFiles()', () => {
-  it.todo('lists files in the supplied directory')
-  it.todo('???')
+  it('lists files in the supplied directory', async () => {
+    const { listDirectoryFiles } = jest.requireActual('./fs')
+    const { Dirent, constants } = jest.requireActual('fs')
+    const { UV_DIRENT_FILE } = constants
+
+    const file = new Dirent('file', UV_DIRENT_FILE)
+
+    fs.readdir.mockResolvedValue([ file ])
+
+    const files = await listDirectoryFiles()
+
+    expect(files).toMatchObject([ file.name ])
+  })
+  it('ignores subdirectories in the supplied directory', async () => {
+    const { listDirectoryFiles } = jest.requireActual('./fs')
+    const { Dirent, constants } = jest.requireActual('fs')
+    const { UV_DIRENT_DIR } = constants
+
+    const directory = new Dirent('directory', UV_DIRENT_DIR)
+    fs.readdir.mockResolvedValue([ directory ])
+
+    const files = await listDirectoryFiles()
+
+    expect(files).toMatchObject([])
+  })
 })
