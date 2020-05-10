@@ -1,19 +1,26 @@
 
-jest.mock('./utils/fs')
-const fs = require('./utils/fs')
-
-const path = require('path')
-
-// Emulate a config file
-const virtualConfig = jest.fn({})
-const configPath = './config.virtual'
-fs.findUpwardsFile.mockResolvedValue(configPath)
-jest.doMock(configPath, virtualConfig, { virtual: true })
-
+const virtualConfig = jest.fn().mockReturnValue({})
 let config
+let fs
+let path = require('path')
 beforeEach(() => {
   jest.clearAllMocks()
-  // Reset any singletons
+
+  // Reset the config/context/state singletons with jest.resetModules().
+  // Unfortunately this seems to destroy mocks from the main scope
+  // so we have to redefine them for each test; I tried using
+  // `delete require.cache[require.resolve('./config')]`
+  // but Jest overrides the NodeJS require-mechanism and
+  // refuses to let you clear individual entries from the cache.
+  jest.resetModules()
+  jest.doMock('./utils/fs')
+  fs = require('./utils/fs')
+
+  // Emulate a config file
+  const configPath = './config.virtual'
+  fs.findUpwardsFile.mockResolvedValue(configPath)
+  jest.doMock(configPath, virtualConfig, { virtual: true })
+
   config = jest.requireActual('./config')
 })
 
@@ -76,7 +83,17 @@ describe('getConfig()', () => {
   })
 
   describe('config.migrationsDirectory', () => {
-    it.todo('points to an absolute path')
+    it('converts to an absolute path', async () => {
+      const configFile = {
+        migrationsDirectory: './absolute/power',
+      }
+      virtualConfig.mockReturnValueOnce(configFile)
+
+      const { migrationsDirectory } = await config.getConfig()
+
+      expect(path.isAbsolute(migrationsDirectory)).toBeTrue()
+      expect(migrationsDirectory).toContain('absolute')
+    })
   })
 
   describe('config.context()', () => {
