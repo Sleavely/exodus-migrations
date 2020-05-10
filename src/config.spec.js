@@ -1,18 +1,24 @@
 
-const config = require('./config')
-
 jest.mock('./utils/fs')
 const fs = require('./utils/fs')
 
 const path = require('path')
 
+// Emulate a config file
+const virtualConfig = jest.fn({wat:'nmeoprjsdpion'})
+const configPath = './config.virtual'
+fs.findUpwardsFile.mockResolvedValue(configPath)
+jest.doMock(configPath, virtualConfig, { virtual: true })
+
+let config
 beforeEach(() => {
   jest.clearAllMocks()
+  // Reset any singletons
+  config = jest.requireActual('./config')
 })
 
 describe('getSampleConfig()', () => {
   it('reads sample template relative to itself', async () => {
-
     await config.getSampleConfig()
 
     expect(fs.readFile).toHaveBeenCalledTimes(1)
@@ -30,9 +36,44 @@ describe('getSampleConfig()', () => {
 })
 
 describe('getConfig()', () => {
-  it.todo('finds config in current or parent directories')
-  it.todo('merges with default settings')
-  it.todo('caches resolved configuration in memory (singleton)')
+  it('finds config in current or parent directories', async () => {
+    expect.assertions(1)
+    await config.getConfig()
+      // Dont care if we fail down the line for this test
+      .catch(() => {})
+      .finally(() => {
+        // Trust and outsource to findUpwardsFile
+        expect(fs.findUpwardsFile).toHaveBeenCalled()
+      })
+  })
+
+  it('merges with default settings', async () => {
+    const configFile = {
+      bird: 'mockingbird',
+    }
+    virtualConfig.mockReturnValueOnce(configFile)
+
+    const resolvedConfig = await config.getConfig()
+
+    expect(resolvedConfig).toMatchObject(configFile)
+    expect(resolvedConfig).toContainKeys([
+      'migrationsDirectory',
+      'context',
+      'fetchState',
+      'storeState',
+      'beforeAll',
+      'afterAll',
+      'beforeEach',
+      'afterEach',
+    ])
+  })
+
+  it('caches resolved configuration in memory (singleton)', async () => {
+    const firstConfig = await config.getConfig()
+    const secondConfig = await config.getConfig()
+
+    expect(secondConfig).toBe(firstConfig)
+  })
 
   describe('config.migrationsDirectory', () => {
     it.todo('points to an absolute path')
