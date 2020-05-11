@@ -40,7 +40,6 @@ exports.run = async () => {
 
   // Initialize context and load history
   const context = await config.context()
-  const state = await config.fetchState(context)
 
   const pendingMigrations = await getPendingJobs()
   if (pendingMigrations.length) {
@@ -52,6 +51,7 @@ exports.run = async () => {
   }
 
   // Store which migrations have been run, but clean absolute paths
+  const state = await config.fetchState(context)
   state.lastRan = (new Date()).toJSON()
   state.history.forEach((job) => {
     delete job.path
