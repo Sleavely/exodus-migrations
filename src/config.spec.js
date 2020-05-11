@@ -121,17 +121,6 @@ describe('getConfig()', () => {
       expect(fs.readFile).toHaveBeenCalled()
     })
 
-    it('is customizable', async () => {
-      const fakeState = { success: 'For once!' }
-      const configFile = {
-        fetchState: async () => fakeState,
-      }
-      virtualConfig.mockReturnValueOnce(configFile)
-      const { fetchState } = await config.getConfig()
-
-      await expect(fetchState()).resolves.toBe(fakeState)
-    })
-
     it('returns a singleton', async () => {
       const { fetchState } = await config.getConfig()
       fs.readFile.mockResolvedValueOnce('{}')
@@ -151,34 +140,28 @@ describe('getConfig()', () => {
 
       expect(fs.writeFile).toHaveBeenCalled()
     })
+  })
 
+  // Customizable methods
+  describe.each([
+    'context',
+    'fetchState',
+    'storeState',
+    'beforeAll',
+    'afterAll',
+    'beforeEach',
+    'afterEach',
+  ])('config.%s()', (methodName) => {
     it('is customizable', async () => {
       const configFile = {
-        storeState: jest.fn(),
+        [methodName]: jest.fn(),
       }
       virtualConfig.mockReturnValueOnce(configFile)
-      const { storeState } = await config.getConfig()
+      const resolvedConfig = await config.getConfig()
 
-      await storeState()
+      await resolvedConfig[methodName]()
 
-      expect(fs.writeFile).not.toHaveBeenCalled()
-      expect(configFile.storeState).toHaveBeenCalled()
+      expect(configFile[methodName]).toHaveBeenCalled()
     })
-  })
-
-  describe('config.beforeAll()', () => {
-    it.todo('test')
-  })
-
-  describe('config.beforeEach()', () => {
-    it.todo('test')
-  })
-
-  describe('config.afterEach()', () => {
-    it.todo('test')
-  })
-
-  describe('config.afterAll()', () => {
-    it.todo('test')
   })
 })
