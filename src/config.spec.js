@@ -93,6 +93,9 @@ describe('getConfig()', () => {
       const { migrationsDirectory } = await config.getConfig()
 
       expect(path.isAbsolute(migrationsDirectory)).toBeTrue()
+
+      // This is actually not required to fulfil the test case,
+      // but it serves as a way to ensure the tests arent leaking.
       expect(migrationsDirectory).toContain('absolute')
     })
   })
