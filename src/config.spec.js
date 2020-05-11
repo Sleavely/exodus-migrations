@@ -144,8 +144,26 @@ describe('getConfig()', () => {
   })
 
   describe('config.storeState()', () => {
-    it.todo('test')
-    it.todo('falls back to file-based state storage')
+    it('defaults to file-based state storage', async () => {
+      const { storeState } = await config.getConfig()
+
+      await storeState()
+
+      expect(fs.writeFile).toHaveBeenCalled()
+    })
+
+    it('is customizable', async () => {
+      const configFile = {
+        storeState: jest.fn(),
+      }
+      virtualConfig.mockReturnValueOnce(configFile)
+      const { storeState } = await config.getConfig()
+
+      await storeState()
+
+      expect(fs.writeFile).not.toHaveBeenCalled()
+      expect(configFile.storeState).toHaveBeenCalled()
+    })
   })
 
   describe('config.beforeAll()', () => {
