@@ -101,12 +101,46 @@ describe('getConfig()', () => {
   })
 
   describe('config.context()', () => {
-    it.todo('returns a singleton')
+    it('returns a singleton', async () => {
+      const { context } = await config.getConfig()
+
+      const { firstContext } = await context()
+      const { secondContext } = await context()
+
+      expect(secondContext).toBe(firstContext)
+    })
   })
 
   describe('config.fetchState()', () => {
-    it.todo('falls back to file-based state storage')
-    it.todo('returns a singleton')
+    it('defaults to file-based state storage', async () => {
+      const { fetchState } = await config.getConfig()
+      fs.readFile.mockResolvedValueOnce('{}')
+
+      await fetchState()
+
+      expect(fs.readFile).toHaveBeenCalled()
+    })
+
+    it('is customizable', async () => {
+      const fakeState = { success: 'For once!' }
+      const configFile = {
+        fetchState: async () => fakeState,
+      }
+      virtualConfig.mockReturnValueOnce(configFile)
+      const { fetchState } = await config.getConfig()
+
+      await expect(fetchState()).resolves.toBe(fakeState)
+    })
+
+    it('returns a singleton', async () => {
+      const { fetchState } = await config.getConfig()
+      fs.readFile.mockResolvedValueOnce('{}')
+
+      const { firstState } = await fetchState()
+      const { secondState } = await fetchState()
+
+      expect(secondState).toBe(firstState)
+    })
   })
 
   describe('config.storeState()', () => {
