@@ -24,7 +24,7 @@ exports.create = async (name) => {
   const targetDir = config.migrationsDirectory
   await mkdir(targetDir, { recursive: true })
 
-  const targetName = `${Date.now()}-${slugify(name)}.js`
+  const targetName = `${Date.now()}-${slugify(name, { lower: true })}.js`
   const targetPath = path.join(targetDir, targetName)
   const template = await getSampleMigration()
   await writeFile(targetPath, template, 'utf8')
