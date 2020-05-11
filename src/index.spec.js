@@ -77,11 +77,45 @@ describe('create()', () => {
 })
 
 describe('run()', () => {
-  it.todo('builds context')
-  it.todo('determines pending jobs from state history')
-  it.todo('runs beforeAll hook before executing any migrations')
+  beforeEach(() => {
+    config.getConfig.mockResolvedValue({ context: jest.fn() })
+  })
+  it('builds context', async () => {
+    const contextBuilder = jest.fn()
+    config.getConfig.mockResolvedValueOnce({ context: contextBuilder })
+
+    await main.run().catch(() => {})
+
+    expect(contextBuilder).toHaveBeenCalled()
+  })
+
+  it('determines pending jobs from state history', async () => {
+    await main.run().catch(() => {})
+
+    expect(migrations.getPendingJobs).toHaveBeenCalled()
+  })
+
+  it('runs beforeAll hook before executing any migrations', async () => {
+    const beforeAll = jest.fn(() => Date.now())
+    config.getConfig.mockResolvedValueOnce({ beforeAll, context: jest.fn() })
+    migrations.getPendingJobs.mockResolvedValueOnce([{}])
+    // Delay for a bit just to make sure :D
+    // Because fast computers are THE WORST
+    migrations.up.mockReturnValue(Date.now() + 1)
+
+    await main.run().catch(() => {})
+
+    expect(beforeAll).toHaveBeenCalled()
+    expect(migrations.up).toHaveBeenCalled()
+    expect(beforeAll.mock.results[0].value)
+      .toBeLessThan(migrations.up.mock.results[0].value)
+  })
+
   it.todo('runs afterAll hook after migrations have been executed')
+
   it.todo('doesnt run beforeAll when no migrations are pending')
+
   it.todo('doesnt run afterAll when no migrations are pending')
+
   it.todo('stores executed migrations to state')
 })
