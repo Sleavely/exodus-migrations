@@ -111,11 +111,47 @@ describe('run()', () => {
       .toBeLessThan(migrations.up.mock.results[0].value)
   })
 
-  it.todo('runs afterAll hook after migrations have been executed')
+  it('runs afterAll hook after migrations have been executed', async () => {
+    migrations.up.mockReturnValue(Date.now())
+    // Supersonic speedbump
+    const afterAll = jest.fn(() => Date.now() + 1)
+    config.getConfig.mockResolvedValueOnce({
+      beforeAll: jest.fn(),
+      afterAll,
+      context: jest.fn(),
+    })
+    migrations.getPendingJobs.mockResolvedValueOnce([{}])
 
-  it.todo('doesnt run beforeAll when no migrations are pending')
+    await main.run().catch(() => {})
 
-  it.todo('doesnt run afterAll when no migrations are pending')
+    expect(migrations.up).toHaveBeenCalled()
+    expect(afterAll).toHaveBeenCalled()
+    expect(migrations.up.mock.results[0].value)
+      .toBeLessThan(afterAll.mock.results[0].value)
+  })
+
+  it('doesnt run beforeAll when no migrations are pending', async () => {
+    const beforeAll = jest.fn()
+    config.getConfig.mockResolvedValueOnce({ beforeAll, context: jest.fn() })
+    // Pretend this isnt the DMV by using an empty queue
+    migrations.getPendingJobs.mockResolvedValueOnce([])
+
+    await main.run().catch(() => {})
+
+    expect(beforeAll).not.toHaveBeenCalled()
+  })
+
+  it('doesnt run afterAll when no migrations are pending', async () => {
+    const beforeAll = jest.fn()
+    const afterAll = jest.fn()
+    config.getConfig.mockResolvedValueOnce({ beforeAll, afterAll, context: jest.fn() })
+    // You're in luck; fast-track normally costs extra!
+    migrations.getPendingJobs.mockResolvedValueOnce([])
+
+    await main.run().catch(() => {})
+
+    expect(afterAll).not.toHaveBeenCalled()
+  })
 
   it.todo('stores executed migrations to state')
 })
