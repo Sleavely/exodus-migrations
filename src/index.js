@@ -39,15 +39,15 @@ exports.run = async () => {
   const config = await getConfig()
 
   // Initialize context and load history
-  const context = await config.context()
+  const context = config.context ? await config.context() : {}
 
   const pendingMigrations = await getPendingJobs()
   if (pendingMigrations.length) {
-    await config.beforeAll(pendingMigrations)
+    if (config.beforeAll) await config.beforeAll(pendingMigrations)
     for (const migrationJob of pendingMigrations) {
       await up(migrationJob)
     }
-    await config.afterAll(pendingMigrations)
+    if (config.afterAll) await config.afterAll(pendingMigrations)
   }
 
   // Store which migrations have been run, but clean absolute paths

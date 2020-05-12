@@ -78,7 +78,7 @@ describe('create()', () => {
 
 describe('run()', () => {
   beforeEach(() => {
-    config.getConfig.mockResolvedValue({ context: jest.fn() })
+    config.getConfig.mockResolvedValue({})
   })
   it('builds context', async () => {
     const contextBuilder = jest.fn()
@@ -97,7 +97,7 @@ describe('run()', () => {
 
   it('runs beforeAll hook before executing any migrations', async () => {
     const beforeAll = jest.fn(() => Date.now())
-    config.getConfig.mockResolvedValueOnce({ beforeAll, context: jest.fn() })
+    config.getConfig.mockResolvedValueOnce({ beforeAll })
     migrations.getPendingJobs.mockResolvedValueOnce([{}])
     // Delay for a bit just to make sure :D
     // Because fast computers are THE WORST
@@ -132,7 +132,7 @@ describe('run()', () => {
 
   it('doesnt run beforeAll when no migrations are pending', async () => {
     const beforeAll = jest.fn()
-    config.getConfig.mockResolvedValueOnce({ beforeAll, context: jest.fn() })
+    config.getConfig.mockResolvedValueOnce({ beforeAll })
     // Pretend this isnt the DMV by using an empty queue
     migrations.getPendingJobs.mockResolvedValueOnce([])
 
@@ -142,9 +142,8 @@ describe('run()', () => {
   })
 
   it('doesnt run afterAll when no migrations are pending', async () => {
-    const beforeAll = jest.fn()
     const afterAll = jest.fn()
-    config.getConfig.mockResolvedValueOnce({ beforeAll, afterAll, context: jest.fn() })
+    config.getConfig.mockResolvedValueOnce({ afterAll })
     // You're in luck; fast-track normally costs extra!
     migrations.getPendingJobs.mockResolvedValueOnce([])
 
