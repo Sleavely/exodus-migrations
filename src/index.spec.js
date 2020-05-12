@@ -95,6 +95,20 @@ describe('run()', () => {
     expect(migrations.getPendingJobs).toHaveBeenCalled()
   })
 
+  it('passes pending jobs off to up()', async () => {
+    config.getConfig.mockResolvedValueOnce({})
+    const job = {
+      title: 'something non-descript',
+      responsibilities: 'all of them',
+      salary: 'too low',
+    }
+    migrations.getPendingJobs.mockResolvedValueOnce([job])
+
+    await main.run().catch(() => {})
+
+    expect(migrations.up).toHaveBeenCalledWith(job)
+  })
+
   it('runs beforeAll hook before executing any migrations', async () => {
     const beforeAll = jest.fn(() => Date.now())
     config.getConfig.mockResolvedValueOnce({ beforeAll })
