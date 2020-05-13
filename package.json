@@ -1,6 +1,6 @@
 {
   "name": "exodus",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Framework-agnostic migrations.",
   "main": "./src/index.js",
   "bin": {
@@ -17,8 +17,8 @@
   "homepage": "https://github.com/Sleavely/exodus-migrations",
   "repository": "github:Sleavely/exodus-migrations",
   "license": "MIT",
-  "engines" : {
-    "node" : ">=10.10.0"
+  "engines": {
+    "node": ">=10.10.0"
   },
   "devDependencies": {
     "@types/jest": "^24.9.1",
