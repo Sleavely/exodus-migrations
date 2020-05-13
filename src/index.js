@@ -24,7 +24,7 @@ exports.create = async (name) => {
   const targetDir = config.migrationsDirectory
   await mkdir(targetDir, { recursive: true })
 
-  const targetName = `${Date.now()}-${slugify(name)}.js`
+  const targetName = `${Date.now()}-${slugify(name, { lower: true })}.js`
   const targetPath = path.join(targetDir, targetName)
   const template = await getSampleMigration()
   await writeFile(targetPath, template, 'utf8')
@@ -39,19 +39,19 @@ exports.run = async () => {
   const config = await getConfig()
 
   // Initialize context and load history
-  const context = await config.context()
-  const state = await config.fetchState(context)
+  const context = config.context ? await config.context() : {}
 
   const pendingMigrations = await getPendingJobs()
   if (pendingMigrations.length) {
-    await config.beforeAll(pendingMigrations)
+    if (config.beforeAll) await config.beforeAll(pendingMigrations)
     for (const migrationJob of pendingMigrations) {
       await up(migrationJob)
     }
-    await config.afterAll(pendingMigrations)
+    if (config.afterAll) await config.afterAll(pendingMigrations)
   }
 
   // Store which migrations have been run, but clean absolute paths
+  const state = await config.fetchState(context)
   state.lastRan = (new Date()).toJSON()
   state.history.forEach((job) => {
     delete job.path
