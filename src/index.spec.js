@@ -165,28 +165,4 @@ describe('run()', () => {
 
     expect(afterAll).not.toHaveBeenCalled()
   })
-
-  it('stores executed migrations to state', async () => {
-    const fetchState = jest.fn()
-    const storeState = jest.fn()
-    config.getConfig.mockResolvedValueOnce({ fetchState, storeState })
-    const job = {
-      title: 'Chief Migration Officer',
-    }
-    migrations.getPendingJobs.mockResolvedValueOnce([job])
-
-    // The migrations module would have appended our job to in-memory state by now
-    fetchState.mockResolvedValue({ history: [job] })
-
-    await main.run()
-
-    expect(storeState).toHaveBeenCalled()
-    expect(storeState.mock.calls[0][0]).toEqual({
-      // Looks like a date, talks like a date?
-      lastRan: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d/),
-      history: [
-        job,
-      ],
-    })
-  })
 })

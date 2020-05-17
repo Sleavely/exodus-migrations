@@ -50,14 +50,7 @@ exports.run = async () => {
     if (config.afterAll) await config.afterAll(pendingMigrations)
   }
 
-  // Store which migrations have been run, but clean absolute paths
   const state = await config.fetchState(context)
-  state.lastRan = (new Date()).toJSON()
-  state.history.forEach((job) => {
-    delete job.path
-  })
-  await config.storeState(state, context)
-
   return { state, ranMigrations: pendingMigrations }
 }
 
