@@ -76,7 +76,7 @@ describe('create()', () => {
   })
 })
 
-describe('run()', () => {
+describe('migrate()', () => {
   beforeEach(() => {
     config.getConfig.mockResolvedValue({})
   })
@@ -84,13 +84,13 @@ describe('run()', () => {
     const contextBuilder = jest.fn()
     config.getConfig.mockResolvedValueOnce({ context: contextBuilder })
 
-    await main.run().catch(() => {})
+    await main.migrate().catch(() => {})
 
     expect(contextBuilder).toHaveBeenCalled()
   })
 
   it('determines pending jobs from state history', async () => {
-    await main.run().catch(() => {})
+    await main.migrate().catch(() => {})
 
     expect(migrations.getPendingJobs).toHaveBeenCalled()
   })
@@ -104,7 +104,7 @@ describe('run()', () => {
     }
     migrations.getPendingJobs.mockResolvedValueOnce([job])
 
-    await main.run().catch(() => {})
+    await main.migrate().catch(() => {})
 
     expect(migrations.up).toHaveBeenCalledWith(job)
   })
@@ -117,7 +117,7 @@ describe('run()', () => {
     // Because fast computers are THE WORST
     migrations.up.mockReturnValue(Date.now() + 1)
 
-    await main.run().catch(() => {})
+    await main.migrate().catch(() => {})
 
     expect(beforeAll).toHaveBeenCalled()
     expect(migrations.up).toHaveBeenCalled()
@@ -136,7 +136,7 @@ describe('run()', () => {
     })
     migrations.getPendingJobs.mockResolvedValueOnce([{}])
 
-    await main.run().catch(() => {})
+    await main.migrate().catch(() => {})
 
     expect(migrations.up).toHaveBeenCalled()
     expect(afterAll).toHaveBeenCalled()
@@ -150,7 +150,7 @@ describe('run()', () => {
     // Pretend this isnt the DMV by using an empty queue
     migrations.getPendingJobs.mockResolvedValueOnce([])
 
-    await main.run().catch(() => {})
+    await main.migrate().catch(() => {})
 
     expect(beforeAll).not.toHaveBeenCalled()
   })
@@ -161,7 +161,7 @@ describe('run()', () => {
     // You're in luck; fast-track normally costs extra!
     migrations.getPendingJobs.mockResolvedValueOnce([])
 
-    await main.run().catch(() => {})
+    await main.migrate().catch(() => {})
 
     expect(afterAll).not.toHaveBeenCalled()
   })
@@ -178,7 +178,7 @@ describe('run()', () => {
     // The migrations module would have appended our job to in-memory state by now
     fetchState.mockResolvedValue({ history: [job] })
 
-    await main.run()
+    await main.migrate()
 
     expect(storeState).toHaveBeenCalled()
     expect(storeState.mock.calls[0][0]).toEqual({

@@ -14,7 +14,7 @@ Usage
 Possible actions
   init              Adds a config file in your project directory
   create <name>     Creates a new file in your migrations dir
-  run               Runs all remaining migrations
+  migrate           Runs all remaining migrations
 
 Options
   --help
@@ -26,9 +26,14 @@ ${self.homepage}
   flags: {},
 })
 
-const action = cli.input[0]
+let action = cli.input[0]
 
 ;(async () => {
+  if (action === 'run') {
+    // TODO: Remove in ^2.0.0
+    action = 'migrate'
+  }
+
   if (action === 'init') {
     const targetFile = `${Object.keys(self.bin)[0]}.config.js`
     const targetPath = path.join(process.cwd(), targetFile)
@@ -39,7 +44,7 @@ const action = cli.input[0]
     if (!name) throw new Error('No name supplied for "create" command.')
     const targetPath = await main.create(name)
     console.log(`Created migration in "${targetPath}`)
-  } else if (action === 'run') {
+  } else if (action === 'migrate') {
     // Wrap *Each() to print each migration.
     const config = await main.getConfig()
     const spinners = {}
