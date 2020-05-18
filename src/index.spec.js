@@ -110,25 +110,26 @@ describe('migrate()', () => {
   })
 
   it('runs beforeAll hook before executing any migrations', async () => {
-    const beforeAll = jest.fn(() => Date.now())
+    const executionOrder = jest.fn(v => v)
+    const beforeAll = jest.fn(() => executionOrder('beforeAll'))
     config.getConfig.mockResolvedValueOnce({ beforeAll })
     migrations.getPendingJobs.mockResolvedValueOnce([{}])
     // Delay for a bit just to make sure :D
     // Because fast computers are THE WORST
-    migrations.up.mockReturnValue(Date.now() + 1)
+    migrations.up.mockImplementationOnce(() => executionOrder('up'))
 
     await main.migrate().catch(() => {})
 
     expect(beforeAll).toHaveBeenCalled()
     expect(migrations.up).toHaveBeenCalled()
-    expect(beforeAll.mock.results[0].value)
-      .toBeLessThan(migrations.up.mock.results[0].value)
+    expect(executionOrder.mock.results[0].value).toBe('beforeAll')
+    expect(executionOrder.mock.results[1].value).toBe('up')
   })
 
   it('runs afterAll hook after migrations have been executed', async () => {
-    migrations.up.mockReturnValue(Date.now())
-    // Supersonic speedbump
-    const afterAll = jest.fn(() => Date.now() + 1)
+    const executionOrder = jest.fn(v => v)
+    migrations.up.mockImplementationOnce(() => executionOrder('up'))
+    const afterAll = jest.fn(() => executionOrder('afterAll'))
     config.getConfig.mockResolvedValueOnce({
       beforeAll: jest.fn(),
       afterAll,
@@ -140,8 +141,8 @@ describe('migrate()', () => {
 
     expect(migrations.up).toHaveBeenCalled()
     expect(afterAll).toHaveBeenCalled()
-    expect(migrations.up.mock.results[0].value)
-      .toBeLessThan(afterAll.mock.results[0].value)
+    expect(executionOrder.mock.results[0].value).toBe('up')
+    expect(executionOrder.mock.results[1].value).toBe('afterAll')
   })
 
   it('doesnt run beforeAll when no migrations are pending', async () => {
