@@ -32,6 +32,7 @@ let action = cli.input[0]
   if (action === 'run') {
     // TODO: Remove in ^2.0.0
     action = 'migrate'
+    ora('The "run" command has been deprecated and will be removed in the next major version. Use "migrate" instead.').warn()
   }
 
   if (action === 'init') {
