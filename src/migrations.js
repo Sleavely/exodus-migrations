@@ -52,7 +52,12 @@ exports.up = async (migrationJob) => {
   migrationJob.finishedAt = (new Date()).toJSON()
   await config.afterEach(migrationJob)
 
+  // Store job in history, but strip absolute path
+  // since it's not relevant in distributed environments.
+  delete migrationJob.path
   state.history.push(migrationJob)
+  state.lastRan = migrationJob.finishedAt
+  await config.storeState(state, context)
 
   return state
 }

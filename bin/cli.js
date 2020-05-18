@@ -71,13 +71,16 @@ let action = cli.input[0]
         ora().info('No migrations to run.')
       }
     } catch (err) {
+      let currentFile
       for (let filename in spinners) {
         // find runnign ones and fail them.
-        if (spinners[filename].isSpinning) spinners[filename].fail()
+        if (spinners[filename].isSpinning) currentFile = filename
       }
+      spinners[currentFile].fail()
       console.error(err)
       ora('').warn()
-      ora('Migrations state was not saved - any jobs that succeeded will be run again next time.').warn()
+      ora(`"${currentFile}" encountered a problem. The error above might help.`).warn()
+      ora('Migrations that finished have been saved to history and will not run again.').warn()
       ora('').warn()
       process.exit(1)
     }
