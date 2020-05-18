@@ -32,7 +32,7 @@ $ exodus --help
   Possible actions
     init              Adds a config file in your project directory
     create <name>     Creates a new file in your migrations dir
-    run               Runs all remaining migrations
+    migrate           Runs all remaining migrations
 
   Options
     --help

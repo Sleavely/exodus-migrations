@@ -26,7 +26,11 @@ jobs:
 
       - run: node bin/cli.js create test-migration
 
-      - run: node bin/cli.js run
+      - run: node bin/cli.js migrate
 
       # And again to make sure it doesnt crash when queue is empty
+      - run: node bin/cli.js migrate
+
+      # Test backwards-compatible alias
+      # TODO: Remove in ^2.0.0
       - run: node bin/cli.js run

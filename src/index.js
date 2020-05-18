@@ -34,7 +34,7 @@ exports.create = async (name) => {
 /**
  * Run all unprocessed migrations
  */
-exports.run = async () => {
+exports.migrate = async () => {
   // find the config
   const config = await getConfig()
 
@@ -53,6 +53,12 @@ exports.run = async () => {
   const state = await config.fetchState(context)
   return { state, ranMigrations: pendingMigrations }
 }
+/**
+ * TODO: Remove in ^2.0.0
+ *
+ * @deprecated
+ */
+exports.run = this.migrate
 
 exports.rollback = async () => {}
 
