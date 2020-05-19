@@ -46,21 +46,35 @@ let action = cli.input[0]
     const targetPath = await main.create(name)
     console.log(`Created migration in "${targetPath}`)
   } else if (action === 'migrate') {
-    // Wrap *Each() to print each migration.
-    const config = await main.getConfig()
+    // Wrap *Each() to print each step.
     const spinners = {}
+    spinners.getConfig = ora().start('Loading configuration')
+    const config = await main.getConfig()
+    spinners.getConfig.succeed('Loaded configuration')
+
+    const originalContextBuilder = config.context
+    config.context = async () => {
+      const stepName = 'context()'
+      const runForFirstTime = !spinners[stepName] || spinners[stepName].isSpinning
+      if (runForFirstTime) spinners[stepName] = ora().start('Building context')
+      const contextReturnValue = await originalContextBuilder()
+      if (runForFirstTime) spinners[stepName].succeed('Loaded context')
+      return contextReturnValue
+    }
 
     const originalBeforeEach = config.beforeEach
     config.beforeEach = async (migrationJob, ...additionalArgs) => {
-      spinners[migrationJob.filename] = ora()
-      spinners[migrationJob.filename].start(`Running "${migrationJob.filename}"`)
+      const stepName = `"${migrationJob.filename}"`
+      spinners[stepName] = ora()
+      spinners[stepName].start(`Running ${stepName}`)
       await originalBeforeEach(migrationJob, ...additionalArgs)
     }
 
     const originalAfterEach = config.afterEach
     config.afterEach = async (migrationJob, ...additionalArgs) => {
       await originalAfterEach(migrationJob, ...additionalArgs)
-      spinners[migrationJob.filename].succeed(`Ran "${migrationJob.filename}"`)
+      const stepName = `"${migrationJob.filename}"`
+      spinners[stepName].succeed(`Ran ${stepName}`)
     }
     // Now run 'em
     try {
