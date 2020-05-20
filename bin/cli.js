@@ -14,7 +14,7 @@ Usage
 Possible actions
   init              Adds a config file in your project directory
   create <name>     Creates a new file in your migrations dir
-  run               Runs all remaining migrations
+  migrate           Runs all remaining migrations
 
 Options
   --help
@@ -26,9 +26,15 @@ ${self.homepage}
   flags: {},
 })
 
-const action = cli.input[0]
+let action = cli.input[0]
 
 ;(async () => {
+  if (action === 'run') {
+    // TODO: Remove in ^2.0.0
+    action = 'migrate'
+    ora('The "run" command has been deprecated and will be removed in the next major version. Use "migrate" instead.').warn()
+  }
+
   if (action === 'init') {
     const targetFile = `${Object.keys(self.bin)[0]}.config.js`
     const targetPath = path.join(process.cwd(), targetFile)
@@ -39,22 +45,36 @@ const action = cli.input[0]
     if (!name) throw new Error('No name supplied for "create" command.')
     const targetPath = await main.create(name)
     console.log(`Created migration in "${targetPath}`)
-  } else if (action === 'run') {
-    // Wrap *Each() to print each migration.
-    const config = await main.getConfig()
+  } else if (action === 'migrate') {
+    // Wrap *Each() to print each step.
     const spinners = {}
+    spinners.getConfig = ora().start('Loading configuration')
+    const config = await main.getConfig()
+    spinners.getConfig.succeed('Loaded configuration')
+
+    const originalContextBuilder = config.context
+    config.context = async () => {
+      const stepName = 'context()'
+      const runForFirstTime = !spinners[stepName] || spinners[stepName].isSpinning
+      if (runForFirstTime) spinners[stepName] = ora().start('Building context')
+      const contextReturnValue = await originalContextBuilder()
+      if (runForFirstTime) spinners[stepName].succeed('Loaded context')
+      return contextReturnValue
+    }
 
     const originalBeforeEach = config.beforeEach
     config.beforeEach = async (migrationJob, ...additionalArgs) => {
-      spinners[migrationJob.filename] = ora()
-      spinners[migrationJob.filename].start(`Running "${migrationJob.filename}"`)
+      const stepName = `"${migrationJob.filename}"`
+      spinners[stepName] = ora()
+      spinners[stepName].start(`Running ${stepName}`)
       await originalBeforeEach(migrationJob, ...additionalArgs)
     }
 
     const originalAfterEach = config.afterEach
     config.afterEach = async (migrationJob, ...additionalArgs) => {
       await originalAfterEach(migrationJob, ...additionalArgs)
-      spinners[migrationJob.filename].succeed(`Ran "${migrationJob.filename}"`)
+      const stepName = `"${migrationJob.filename}"`
+      spinners[stepName].succeed(`Ran ${stepName}`)
     }
     // Now run 'em
     try {
@@ -65,13 +85,16 @@ const action = cli.input[0]
         ora().info('No migrations to run.')
       }
     } catch (err) {
-      for (let filename in spinners) {
+      let currentStep
+      for (let step in spinners) {
         // find runnign ones and fail them.
-        if (spinners[filename].isSpinning) spinners[filename].fail()
+        if (spinners[step].isSpinning) currentStep = step
       }
+      if (currentStep) spinners[currentStep].fail()
       console.error(err)
       ora('').warn()
-      ora('Migrations state was not saved - any jobs that succeeded will be run again next time.').warn()
+      ora(`${currentStep || 'exodus'} encountered a problem. The error above might help.`).warn()
+      ora('Migrations that finished have been saved to history and will not run again.').warn()
       ora('').warn()
       process.exit(1)
     }

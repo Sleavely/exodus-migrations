@@ -1,5 +1,5 @@
 const { getConfig, getSampleConfig } = require('./config')
-const { getSampleMigration, runPendingJobs } = require('./migrations')
+const { getSampleMigration, runPendingMigrations } = require('./migrations')
 const { mkdir, writeFile } = require('./utils/fs')
 const path = require('path')
 const slugify = require('slugify')
@@ -34,25 +34,24 @@ exports.create = async (name) => {
 /**
  * Run all unprocessed migrations
  */
-exports.run = async () => {
+exports.migrate = async () => {
   // find the config
   const config = await getConfig()
 
   // Initialize context and load history
   const context = config.context ? await config.context() : {}
 
-  const ranMigrations = await runPendingJobs()
+  const ranMigrations = await runPendingMigrations()
 
-  // Store which migrations have been run, but clean absolute paths
   const state = await config.fetchState(context)
-  state.lastRan = (new Date()).toJSON()
-  state.history.forEach((job) => {
-    delete job.path
-  })
-  await config.storeState(state, context)
-
   return { state, ranMigrations }
 }
+/**
+ * TODO: Remove in ^2.0.0
+ *
+ * @deprecated
+ */
+exports.run = this.migrate
 
 exports.rollback = async () => {}
 

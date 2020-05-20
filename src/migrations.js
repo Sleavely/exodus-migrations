@@ -35,19 +35,21 @@ exports.getPendingJobs = async () => {
   return pendingMigrations
 }
 
-exports.runPendingJobs = async () => {
+exports.runPendingMigrations = async () => {
   const config = await getConfig()
 
-  const pendingJobs = await this.getPendingJobs()
+  const pendingMigrations = await this.getPendingJobs()
 
-  if (pendingJobs.length) {
-    await config.beforeAll(pendingJobs)
+  if (pendingMigrations.length) {
+    if (config.beforeAll) await config.beforeAll(pendingMigrations)
 
-    for (const migrationJob of pendingJobs) {
+    for (const migrationJob of pendingMigrations) {
       await this.up(migrationJob)
     }
-    await config.afterAll(pendingJobs)
+    if (config.afterAll) await config.afterAll(pendingMigrations)
   }
+
+  return pendingMigrations
 }
 
 exports.up = async (migrationJob) => {
@@ -67,7 +69,12 @@ exports.up = async (migrationJob) => {
   migrationJob.finishedAt = (new Date()).toJSON()
   await config.afterEach(migrationJob)
 
+  // Store job in history, but strip absolute path
+  // since it's not relevant in distributed environments.
+  delete migrationJob.path
   state.history.push(migrationJob)
+  state.lastRan = migrationJob.finishedAt
+  await config.storeState(state, context)
 
   return state
 }

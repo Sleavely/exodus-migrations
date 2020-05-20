@@ -4,7 +4,7 @@
 
 [ ![npm version](https://img.shields.io/npm/v/exodus.svg?style=flat) ](https://npmjs.org/package/exodus "View this project on npm") [ ![CircleCI](https://img.shields.io/circleci/build/github/Sleavely/exodus-migrations?token=22848581bf01ecc38384dd7f568a8404e84c21d2) ](https://circleci.com/gh/Sleavely/exodus-migrations)
 
-[Github](https://github.com/Sleavely/exodus-migrations) | [NPM](https://www.npmjs.com/package/exodus)
+[Github](https://github.com/Sleavely/exodus-migrations) | [NPM](https://www.npmjs.com/package/exodus) | [Changelog](https://github.com/Sleavely/exodus-migrations/releases)
 
 ## Install
 
@@ -32,7 +32,7 @@ $ exodus --help
   Possible actions
     init              Adds a config file in your project directory
     create <name>     Creates a new file in your migrations dir
-    run               Runs all remaining migrations
+    migrate           Runs all remaining migrations
 
   Options
     --help
