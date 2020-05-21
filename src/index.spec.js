@@ -77,9 +77,6 @@ describe('create()', () => {
 })
 
 describe('migrate()', () => {
-  beforeEach(() => {
-    config.getConfig.mockResolvedValue({})
-  })
   it('builds context', async () => {
     const contextBuilder = jest.fn()
     config.getConfig.mockResolvedValueOnce({ context: contextBuilder })
@@ -87,5 +84,19 @@ describe('migrate()', () => {
     await main.migrate().catch(() => {})
 
     expect(contextBuilder).toHaveBeenCalled()
+  })
+
+  it('returns ran migrations and state after running migrations', async () => {
+    const fetchState = jest.fn()
+    fetchState.mockResolvedValue({})
+    config.getConfig.mockResolvedValueOnce({ fetchState })
+    const job = { title: 'test-job-pls-ignore' }
+    migrations.runPendingMigrations.mockResolvedValueOnce([job])
+
+    const { state, ranMigrations } = await main.migrate()
+
+    expect(migrations.runPendingMigrations).toHaveBeenCalledTimes(1)
+    expect(ranMigrations).toMatchObject([job])
+    expect(state).toMatchObject(state)
   })
 })
