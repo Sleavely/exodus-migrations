@@ -77,9 +77,6 @@ describe('create()', () => {
 })
 
 describe('migrate()', () => {
-  beforeEach(() => {
-    config.getConfig.mockResolvedValue({})
-  })
   it('builds context', async () => {
     const contextBuilder = jest.fn()
     config.getConfig.mockResolvedValueOnce({ context: contextBuilder })
@@ -89,81 +86,17 @@ describe('migrate()', () => {
     expect(contextBuilder).toHaveBeenCalled()
   })
 
-  it('determines pending jobs from state history', async () => {
-    await main.migrate().catch(() => {})
+  it('returns ran migrations and state after running migrations', async () => {
+    const fetchState = jest.fn()
+    fetchState.mockResolvedValue({})
+    config.getConfig.mockResolvedValueOnce({ fetchState })
+    const job = { title: 'test-job-pls-ignore' }
+    migrations.runPendingMigrations.mockResolvedValueOnce([job])
 
-    expect(migrations.getPendingJobs).toHaveBeenCalled()
-  })
+    const { state, ranMigrations } = await main.migrate()
 
-  it('passes pending jobs off to up()', async () => {
-    config.getConfig.mockResolvedValueOnce({})
-    const job = {
-      title: 'something non-descript',
-      responsibilities: 'all of them',
-      salary: 'too low',
-    }
-    migrations.getPendingJobs.mockResolvedValueOnce([job])
-
-    await main.migrate().catch(() => {})
-
-    expect(migrations.up).toHaveBeenCalledWith(job)
-  })
-
-  it('runs beforeAll hook before executing any migrations', async () => {
-    const executionOrder = jest.fn(v => v)
-    const beforeAll = jest.fn(() => executionOrder('beforeAll'))
-    config.getConfig.mockResolvedValueOnce({ beforeAll })
-    migrations.getPendingJobs.mockResolvedValueOnce([{}])
-    // Delay for a bit just to make sure :D
-    // Because fast computers are THE WORST
-    migrations.up.mockImplementationOnce(() => executionOrder('up'))
-
-    await main.migrate().catch(() => {})
-
-    expect(beforeAll).toHaveBeenCalled()
-    expect(migrations.up).toHaveBeenCalled()
-    expect(executionOrder.mock.results[0].value).toBe('beforeAll')
-    expect(executionOrder.mock.results[1].value).toBe('up')
-  })
-
-  it('runs afterAll hook after migrations have been executed', async () => {
-    const executionOrder = jest.fn(v => v)
-    migrations.up.mockImplementationOnce(() => executionOrder('up'))
-    const afterAll = jest.fn(() => executionOrder('afterAll'))
-    config.getConfig.mockResolvedValueOnce({
-      beforeAll: jest.fn(),
-      afterAll,
-      context: jest.fn(),
-    })
-    migrations.getPendingJobs.mockResolvedValueOnce([{}])
-
-    await main.migrate().catch(() => {})
-
-    expect(migrations.up).toHaveBeenCalled()
-    expect(afterAll).toHaveBeenCalled()
-    expect(executionOrder.mock.results[0].value).toBe('up')
-    expect(executionOrder.mock.results[1].value).toBe('afterAll')
-  })
-
-  it('doesnt run beforeAll when no migrations are pending', async () => {
-    const beforeAll = jest.fn()
-    config.getConfig.mockResolvedValueOnce({ beforeAll })
-    // Pretend this isnt the DMV by using an empty queue
-    migrations.getPendingJobs.mockResolvedValueOnce([])
-
-    await main.migrate().catch(() => {})
-
-    expect(beforeAll).not.toHaveBeenCalled()
-  })
-
-  it('doesnt run afterAll when no migrations are pending', async () => {
-    const afterAll = jest.fn()
-    config.getConfig.mockResolvedValueOnce({ afterAll })
-    // You're in luck; fast-track normally costs extra!
-    migrations.getPendingJobs.mockResolvedValueOnce([])
-
-    await main.migrate().catch(() => {})
-
-    expect(afterAll).not.toHaveBeenCalled()
+    expect(migrations.runPendingMigrations).toHaveBeenCalledTimes(1)
+    expect(ranMigrations).toMatchObject([job])
+    expect(state).toMatchObject(state)
   })
 })

@@ -35,6 +35,23 @@ exports.getPendingJobs = async () => {
   return pendingMigrations
 }
 
+exports.runPendingMigrations = async () => {
+  const config = await getConfig()
+
+  const pendingMigrations = await this.getPendingJobs()
+
+  if (pendingMigrations.length) {
+    if (config.beforeAll) await config.beforeAll(pendingMigrations)
+
+    for (const migrationJob of pendingMigrations) {
+      await this.up(migrationJob)
+    }
+    if (config.afterAll) await config.afterAll(pendingMigrations)
+  }
+
+  return pendingMigrations
+}
+
 exports.up = async (migrationJob) => {
   const config = await getConfig()
   const context = await config.context()

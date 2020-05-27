@@ -1,5 +1,5 @@
 const { getConfig, getSampleConfig } = require('./config')
-const { getSampleMigration, getPendingJobs, up } = require('./migrations')
+const { getSampleMigration, runPendingMigrations } = require('./migrations')
 const { mkdir, writeFile } = require('./utils/fs')
 const path = require('path')
 const slugify = require('slugify')
@@ -41,17 +41,10 @@ exports.migrate = async () => {
   // Initialize context and load history
   const context = config.context ? await config.context() : {}
 
-  const pendingMigrations = await getPendingJobs()
-  if (pendingMigrations.length) {
-    if (config.beforeAll) await config.beforeAll(pendingMigrations)
-    for (const migrationJob of pendingMigrations) {
-      await up(migrationJob)
-    }
-    if (config.afterAll) await config.afterAll(pendingMigrations)
-  }
+  const ranMigrations = await runPendingMigrations()
 
   const state = await config.fetchState(context)
-  return { state, ranMigrations: pendingMigrations }
+  return { state, ranMigrations }
 }
 /**
  * TODO: Remove in ^2.0.0
