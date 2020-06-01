@@ -39,7 +39,12 @@ let action = cli.input[0]
     const targetFile = `${Object.keys(self.bin)[0]}.config.js`
     const targetPath = path.join(process.cwd(), targetFile)
     await main.init(targetPath)
-    console.log(`Created configuration in "${targetPath}"`)
+      .then(() => ora().succeed(`Created configuration in "${targetPath}"`))
+      .catch((err) => {
+        if (err.code !== 'INITEXISTS') throw err
+        ora().fail(err.message)
+        process.exit(1)
+      })
   } else if (action === 'create') {
     const name = cli.input[1]
     if (!name) throw new Error('No name supplied for "create" command.')
