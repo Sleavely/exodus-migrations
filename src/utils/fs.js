@@ -23,7 +23,7 @@ exports.findUpwardsFile = async (filename, directory = process.cwd()) => {
   const targetFile = path.join(parsedPath.dir, parsedPath.base)
   let fileExists = false
   try {
-    await exports.access(targetFile, 'utf8')
+    await this.access(targetFile, 'utf8')
     fileExists = true
   } catch (err) {
     if (err.code !== 'ENOENT') throw err
@@ -37,7 +37,7 @@ exports.findUpwardsFile = async (filename, directory = process.cwd()) => {
       return false
     } else {
       // Keep digging
-      return exports.findUpwardsFile(filename, path.dirname(directory))
+      return this.findUpwardsFile(filename, path.dirname(directory))
     }
   }
 }
@@ -50,7 +50,7 @@ exports.findUpwardsFile = async (filename, directory = process.cwd()) => {
  */
 exports.listDirectoryFiles = async (directoryPath) => {
   // Note: withFileTypes requires Node 10+
-  const dirItems = await exports.readDir(directoryPath, { withFileTypes: true })
+  const dirItems = await this.readDir(directoryPath, { withFileTypes: true })
 
   return dirItems
     .filter(item => !item.isDirectory())
