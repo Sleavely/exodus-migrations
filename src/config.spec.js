@@ -54,10 +54,17 @@ describe('findConfig()', () => {
 
     await expect(config.findConfig()).resolves.toBe('/yolo/swag')
   })
-  it('throws with code NOCONFIG if no file can be found', async () => {
-    fs.findUpwardsFile.mockResolvedValueOnce(false)
+  it('throws if no file can be found', async () => {
+    expect.assertions(3)
 
-    await expect(config.findConfig()).rejects.toThrow('not find exodus')
+    fs.findUpwardsFile.mockResolvedValueOnce(false)
+    await expect(config.findConfig()).rejects.toThrow()
+
+    fs.findUpwardsFile.mockResolvedValueOnce(false)
+    await config.findConfig().catch(err => {
+      expect(err.message).toInclude('not find exodus')
+      expect(err.code).toBe('NOCONFIG')
+    })
   })
 })
 
