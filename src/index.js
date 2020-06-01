@@ -1,6 +1,16 @@
-const { getConfig, getSampleConfig } = require('./config')
-const { getSampleMigration, runPendingMigrations } = require('./migrations')
-const { mkdir, writeFile } = require('./utils/fs')
+const {
+  findConfig,
+  getConfig,
+  getSampleConfig,
+} = require('./config')
+const {
+  getSampleMigration,
+  runPendingMigrations,
+} = require('./migrations')
+const {
+  mkdir,
+  writeFile,
+} = require('./utils/fs')
 const path = require('path')
 const slugify = require('slugify')
 
@@ -10,8 +20,18 @@ exports.getConfig = getConfig
  * Create a sample configuration in the supplied path
  */
 exports.init = async (targetPath) => {
+  const existingConfigPath = await findConfig()
+    .catch(err => {
+      if (err.code === 'NOCONFIG') return false
+      throw err
+    })
   const sampleConfig = await getSampleConfig()
-  await writeFile(targetPath, sampleConfig)
+  if (existingConfigPath) {
+    const err = new Error(`A configuration already exists in "${existingConfigPath}"`)
+    err.code = 'INITEXISTS'
+    throw err
+  }
+  return writeFile(targetPath, sampleConfig)
 }
 
 /**
