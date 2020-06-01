@@ -6,14 +6,23 @@ exports.getSampleConfig = async () => {
   return fs.readFile(path.resolve(__dirname, './templates/config.js'), 'utf8')
 }
 
+exports.findConfig = async () => {
+  const configName = 'exodus.config.js'
+  const targetConfig = await fs.findUpwardsFile(configName)
+  if (!targetConfig) {
+    const err = new Error(`Could not find ${configName} in this or any parent directories.`)
+    err.code = 'NOCONFIG'
+    throw err
+  }
+  return targetConfig
+}
+
 let _config
 let _context
 let _state
 exports.getConfig = async () => {
   if (!_config) {
-    const configName = 'exodus.config.js'
-    const targetConfig = await fs.findUpwardsFile(configName)
-    if (!targetConfig) throw new Error(`Could not find ${configName} in this or any parent directories.`)
+    const targetConfig = await this.findConfig()
 
     const externalConfig = require(targetConfig)
     _config = {
