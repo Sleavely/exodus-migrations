@@ -32,11 +32,18 @@ it('can be loaded without throwing exceptions', () => {
 describe('init()', () => {
   it('writes a configtemplate to the supplied path', async () => {
     const targetPath = path.join(process.cwd(), 'exodus-init-test.js')
+    config.findConfig.mockRejectedValueOnce({ code: 'NOCONFIG' })
     config.getSampleConfig.mockResolvedValueOnce('Hello world')
 
     await main.init(targetPath)
 
     expect(fs.writeFile).toHaveBeenCalledWith(targetPath, 'Hello world')
+  })
+  it('throws if a configuration already exists', async () => {
+    const targetPath = path.join(process.cwd(), 'exodus-init-test.js')
+    config.findConfig.mockResolvedValueOnce('/interwebz/exodus.config.js')
+
+    await expect(main.init(targetPath)).rejects.toThrow('already exists')
   })
 })
 

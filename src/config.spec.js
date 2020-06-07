@@ -43,16 +43,43 @@ describe('getSampleConfig()', () => {
   })
 })
 
+describe('findConfig()', () => {
+  it('looks for config in current or parent directories', async () => {
+    await config.findConfig().catch(() => {})
+
+    expect(fs.findUpwardsFile).toHaveBeenCalledWith('exodus.config.js')
+  })
+  it('returns the path of the file it finds', async () => {
+    fs.findUpwardsFile.mockResolvedValueOnce('/yolo/swag')
+
+    await expect(config.findConfig()).resolves.toBe('/yolo/swag')
+  })
+  it('throws if no file can be found', async () => {
+    expect.assertions(3)
+
+    fs.findUpwardsFile.mockResolvedValueOnce(false)
+    await expect(config.findConfig()).rejects.toThrow()
+
+    fs.findUpwardsFile.mockResolvedValueOnce(false)
+    await config.findConfig().catch(err => {
+      expect(err.message).toInclude('not find exodus')
+      expect(err.code).toBe('NOCONFIG')
+    })
+  })
+})
+
 describe('getConfig()', () => {
-  it('finds config in current or parent directories', async () => {
-    expect.assertions(1)
+  it('uses findConfig() to locate the appropriate file', async () => {
+    const spy = jest.spyOn(config, 'findConfig')
     await config.getConfig()
       // Dont care if we fail down the line for this test
       .catch(() => {})
       .finally(() => {
         // Trust and outsource to findUpwardsFile
-        expect(fs.findUpwardsFile).toHaveBeenCalled()
+        expect(spy).toHaveBeenCalled()
       })
+    spy.mockReset()
+    spy.mockRestore()
   })
 
   it('merges with default settings', async () => {
