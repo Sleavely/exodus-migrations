@@ -103,6 +103,19 @@ let action = cli.input[0]
       ora('').warn()
       process.exit(1)
     }
+  } else if (action === 'rollback') {
+    // ✨🎉✨🎉✨🎉✨🎉✨🎉✨🎉✨🎉
+    //          MILLAS MIRAKEL
+    // ✨🎉✨🎉✨🎉✨🎉✨🎉✨🎉✨🎉
+    // TODO: Error management; what happens if rollbackjob 3 of 5 fails?
+    const { revertedMigrations } = await main.rollback()
+    if (revertedMigrations.length) {
+      for (const migrationJob of revertedMigrations) {
+        ora().succeed(`Rolled back "${migrationJob.filename}"`)
+      }
+    } else {
+      ora('Nothing to revert.').info()
+    }
   } else {
     cli.showHelp(1)
   }

@@ -78,3 +78,63 @@ exports.up = async (migrationJob) => {
 
   return state
 }
+
+/**
+ * Find the latest batch of jobs that ran.
+ * This is the spiritual inversion of getPendingJobs()
+ */
+exports.getRecentRound = async () => {
+  const config = await getConfig()
+  const context = await config.context()
+  const state = await config.fetchState(context)
+
+  const descHistory = state.history.sort(({ finishedAt: b }, { finishedAt: a }) => {
+    if (a < b) {
+      return -1
+    }
+    if (a > b) {
+      return 1
+    }
+    return 0
+  })
+  return descHistory
+    .filter(({ roundId }) => roundId === descHistory[0].roundId)
+    .map((job) => ({
+      ...job,
+      path: path.join(config.migrationsDirectory, job.filename),
+    }))
+}
+
+exports.rollbackRecentRound = async () => {
+  const recentRound = await this.getRecentRound()
+
+  // This will probably break in a distributed environment where
+  // the files from the most recent round does not exist locally;
+  // in that case we should figure out whether
+  // - the batch was run remotely (none of the files exist locally)
+  // - or altered locally inbetween now and then (one or more files are missing from the batch)
+  // TODO: missing-file-resolution
+  for (const migrationJob of recentRound) {
+    await this.down(migrationJob)
+  }
+
+  return recentRound
+}
+
+exports.down = async (migrationJob) => {
+  const config = await getConfig()
+  const context = await config.context()
+  const state = await config.fetchState(context)
+
+  // Roll it back.
+  const migrationModule = require(migrationJob.path)
+  await migrationModule.down(context)
+
+  // Delete the migration from the history, Thanos-style.
+  state.history = state.history.filter(({ roundId, filename }) => {
+    return roundId !== migrationJob.roundId || filename !== migrationJob.filename
+  })
+  delete migrationJob.path
+  await config.storeState(state, context)
+  return state
+}
