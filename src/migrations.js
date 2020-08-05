@@ -105,36 +105,54 @@ exports.getRecentRound = async () => {
     }))
 }
 
-exports.rollbackRecentRound = async () => {
+exports.rollbackRecentRound = async ({ ignoreMissing = false } = {}) => {
   const recentRound = await this.getRecentRound()
 
-  // This will probably break in a distributed environment where
-  // the files from the most recent round does not exist locally;
-  // in that case we should figure out whether
-  // - the batch was run remotely (none of the files exist locally)
-  // - or altered locally inbetween now and then (one or more files are missing from the batch)
-  // TODO: missing-file-resolution
+  // We need to consider distributed environments where the files
+  // dont exist locally (e.g. distributed collaborative environments),
+  // or for some reason were deleted.
+  // Let's verify we have the entire round before proceeding.
   for (const migrationJob of recentRound) {
-    await this.down(migrationJob)
+    migrationJob.exists = await fs.fileExists(migrationJob.path)
+
+    if (!ignoreMissing && !migrationJob.exists) {
+      const err = new Error(`"${migrationJob.filename}" is missing!`)
+      err.code = 'MIGRATIONMISSING'
+      throw err
+    }
+  }
+  // The actual execution of the rollbacks gets its own loop
+  // to avoid accidentally rolling back a partial round.
+  for (const migrationJob of recentRound) {
+    if (migrationJob.exists) {
+      await this.down(migrationJob)
+    }
+    await this.deleteMigrationFromState(migrationJob)
   }
 
   return recentRound
 }
 
-exports.down = async (migrationJob) => {
+exports.deleteMigrationFromState = async (migrationJob) => {
   const config = await getConfig()
   const context = await config.context()
   const state = await config.fetchState(context)
-
-  // Roll it back.
-  const migrationModule = require(migrationJob.path)
-  await migrationModule.down(context)
 
   // Delete the migration from the history, Thanos-style.
   state.history = state.history.filter(({ roundId, filename }) => {
     return roundId !== migrationJob.roundId || filename !== migrationJob.filename
   })
+  delete migrationJob.exists
   delete migrationJob.path
   await config.storeState(state, context)
   return state
+}
+
+exports.down = async (migrationJob) => {
+  const config = await getConfig()
+  const context = await config.context()
+
+  // Roll it back.
+  const migrationModule = require(migrationJob.path)
+  return migrationModule.down(context)
 }

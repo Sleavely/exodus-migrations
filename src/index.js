@@ -77,11 +77,11 @@ exports.run = this.migrate
 /**
  * Revert most recent batch of migrations
  */
-exports.rollback = async () => {
+exports.rollback = async ({ ignoreMissing }) => {
   const config = await getConfig()
   const context = config.context ? await config.context() : {}
 
-  const revertedMigrations = await rollbackRecentRound()
+  const revertedMigrations = await rollbackRecentRound({ ignoreMissing })
   const state = await config.fetchState(context)
   return { state, revertedMigrations }
 }
