@@ -23,7 +23,7 @@ exports.findUpwardsFile = async (filename, directory = process.cwd()) => {
   const targetFile = path.join(parsedPath.dir, parsedPath.base)
   let fileExists = false
   try {
-    await this.access(targetFile, 'utf8')
+    await this.access(targetFile)
     fileExists = true
   } catch (err) {
     if (err.code !== 'ENOENT') throw err
