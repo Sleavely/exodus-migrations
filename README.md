@@ -36,6 +36,8 @@ $ exodus --help
     rollback          Reverts most recent batch of migrations
 
   Options
+    --ignore-missing  Allow rollbacks to clear migrations from state
+                      without calling down() when the file is missing
     --help
 
   For more information, see:
