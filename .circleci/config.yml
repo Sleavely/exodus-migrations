@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build_v10: &build
     docker:
       - image: circleci/node:10.10.0
     working_directory: ~/repo
@@ -34,3 +34,21 @@ jobs:
       # Test backwards-compatible alias
       # TODO: Remove in ^2.0.0
       - run: node bin/cli.js run
+
+  build_v12:
+    <<: *build
+    docker:
+      - image: circleci/node:12
+
+  build_v14:
+    <<: *build
+    docker:
+      - image: circleci/node:14
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build_v10
+      - build_v12
+      - build_v14
