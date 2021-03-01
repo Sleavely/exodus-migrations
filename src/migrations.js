@@ -23,6 +23,7 @@ exports.getPendingJobs = async () => {
 
   const pendingMigrations = files
     .filter((filename) => {
+      if (!filename.endsWith('.js')) return false
       return !alreadyRanFiles.includes(filename)
     })
     .sort()
