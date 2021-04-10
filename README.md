@@ -33,8 +33,11 @@ $ exodus --help
     init              Adds a config file in your project directory
     create <name>     Creates a new file in your migrations dir
     migrate           Runs all remaining migrations
+    rollback          Reverts most recent batch of migrations
 
   Options
+    --ignore-missing  Allow rollbacks to clear migrations from state
+                      without calling down() when the file is missing
     --help
 
   For more information, see:

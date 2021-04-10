@@ -31,6 +31,8 @@ jobs:
       # And again to make sure it doesnt crash when queue is empty
       - run: node bin/cli.js migrate
 
+      - run: node bin/cli.js rollback
+
       # Test backwards-compatible alias
       # TODO: Remove in ^2.0.0
       - run: node bin/cli.js run
