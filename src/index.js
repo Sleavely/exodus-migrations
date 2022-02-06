@@ -6,6 +6,7 @@ const {
 const {
   getSampleMigration,
   runPendingMigrations,
+  rollbackRecentRound,
 } = require('./migrations')
 const {
   mkdir,
@@ -73,7 +74,17 @@ exports.migrate = async () => {
  */
 exports.run = this.migrate
 
-exports.rollback = async () => {}
+/**
+ * Revert most recent batch of migrations
+ */
+exports.rollback = async ({ ignoreMissing }) => {
+  const config = await getConfig()
+  const context = config.context ? await config.context() : {}
+
+  const revertedMigrations = await rollbackRecentRound({ ignoreMissing })
+  const state = await config.fetchState(context)
+  return { state, revertedMigrations }
+}
 
 exports.up = async () => {}
 

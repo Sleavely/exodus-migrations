@@ -15,15 +15,22 @@ Possible actions
   init              Adds a config file in your project directory
   create <name>     Creates a new file in your migrations dir
   migrate           Runs all remaining migrations
+  rollback          Reverts most recent batch of migrations
 
 Options
+  --ignore-missing  Allow rollbacks to clear migrations from state
+                    without calling down() when the file is missing
   --help
 
 For more information, see:
 ${self.homepage}
 `, {
   description: false,
-  flags: {},
+  flags: {
+    ignoreMissing: {
+      type: 'boolean',
+    },
+  },
 })
 
 let action = cli.input[0]
@@ -102,6 +109,26 @@ let action = cli.input[0]
       ora('Migrations that finished have been saved to history and will not run again.').warn()
       ora('').warn()
       process.exit(1)
+    }
+  } else if (action === 'rollback') {
+    // TODO: Error management; what happens if rollbackjob 3 of 5 fails?
+    const { ignoreMissing } = cli.flags
+    const { revertedMigrations } = await main.rollback({ ignoreMissing })
+      .catch((err) => {
+        if (err.code !== 'MIGRATIONMISSING') throw err
+        ora().fail(err.message)
+        ora('').warn()
+        ora('Missing file detected. No rollbacks were performed.').warn()
+        ora('Use --ignore-missing to pretend missing files were rolled back.').warn()
+        ora('').warn()
+        process.exit(1)
+      })
+    if (revertedMigrations.length) {
+      for (const migrationJob of revertedMigrations) {
+        ora().succeed(`Rolled back "${migrationJob.filename}"`)
+      }
+    } else {
+      ora('Nothing to revert.').info()
     }
   } else {
     cli.showHelp(1)

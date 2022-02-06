@@ -10,6 +10,17 @@ exports.readFile = promisify(fs.readFile)
 exports.stat = promisify(fs.stat)
 exports.writeFile = promisify(fs.writeFile)
 
+exports.fileExists = async (filepath) => {
+  let fileExists = false
+  try {
+    await this.access(filepath)
+    fileExists = true
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err
+  }
+  return fileExists
+}
+
 /**
  * Finds and returns the path to an upwards file by traversing parent directories
  * until either the file exists or the directory is in the root of the filesystem.
@@ -21,13 +32,8 @@ exports.writeFile = promisify(fs.writeFile)
 exports.findUpwardsFile = async (filename, directory = process.cwd()) => {
   const parsedPath = path.parse(path.join(directory, filename))
   const targetFile = path.join(parsedPath.dir, parsedPath.base)
-  let fileExists = false
-  try {
-    await this.access(targetFile)
-    fileExists = true
-  } catch (err) {
-    if (err.code !== 'ENOENT') throw err
-  }
+
+  const fileExists = await this.fileExists(targetFile)
   if (fileExists) {
     // yay!
     return targetFile
